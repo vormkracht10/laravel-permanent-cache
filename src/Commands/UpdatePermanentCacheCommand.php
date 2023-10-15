@@ -37,7 +37,7 @@ class UpdatePermanentCacheCommand extends Command
         }
     }
 
-    public function updateCache($class)
+    public function updateCache($class): void
     {
         try {
             $this->output->write("<comment>Updating cache: {$class->getName()}...</comment> ", false);

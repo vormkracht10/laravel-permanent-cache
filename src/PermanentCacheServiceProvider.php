@@ -4,6 +4,7 @@ namespace Vormkracht10\PermamentCache;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Vormkracht10\PermanentCache\Commands\UpdatePermanentCacheCommand;
 
 class PermamentCacheServiceProvider extends PackageServiceProvider
 {
@@ -12,6 +13,6 @@ class PermamentCacheServiceProvider extends PackageServiceProvider
         $package
             ->name('laravel-permanent-cache')
             ->hasConfigFile()
-            ->hasCommand(UpdatePermamentCacheCommand::class);
+            ->hasCommand(UpdatePermanentCacheCommand::class);
     }
 }
