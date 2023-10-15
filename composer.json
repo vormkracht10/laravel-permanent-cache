@@ -34,13 +34,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Vormkracht10\\LaravelPermanentCache\\": "src/",
-            "Vormkracht10\\LaravelPermanentCache\\Database\\Factories\\": "database/factories/"
+            "Vormkracht10\\PermamentCache\\": "src/",
+            "Vormkracht10\\PermamentCache\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Vormkracht10\\LaravelPermanentCache\\Tests\\": "tests/"
+            "Vormkracht10\\PermamentCache\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -60,10 +60,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Vormkracht10\\LaravelPermanentCache\\LaravelPermanentCacheServiceProvider"
+                "Vormkracht10\\PermamentCache\\PermamentCacheServiceProvider"
             ],
             "aliases": {
-                "LaravelPermanentCache": "Vormkracht10\\LaravelPermanentCache\\Facades\\LaravelPermanentCache"
+                "PermamentCache": "Vormkracht10\\PermamentCache\\Facades\\PermamentCache"
             }
         }
     },

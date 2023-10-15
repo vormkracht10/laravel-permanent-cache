@@ -1,10 +1,10 @@
 <?php
 
-namespace Vormkracht10\LaravelPermanentCache\Tests;
+namespace Vormkracht10\PermamentCache\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Vormkracht10\LaravelPermanentCache\LaravelPermanentCacheServiceProvider;
+use Vormkracht10\PermamentCache\PermamentCacheServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -13,14 +13,14 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Vormkracht10\\LaravelPermanentCache\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'Vormkracht10\\PermamentCache\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
     }
 
     protected function getPackageProviders($app)
     {
         return [
-            LaravelPermanentCacheServiceProvider::class,
+            PermamentCacheServiceProvider::class,
         ];
     }
 

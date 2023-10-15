@@ -52,8 +52,8 @@ php artisan vendor:publish --tag="laravel-permanent-cache-views"
 ## Usage
 
 ```php
-$laravelPermanentCache = new Vormkracht10\LaravelPermanentCache();
-echo $laravelPermanentCache->echoPhrase('Hello, Vormkracht10!');
+$permamentCache = new Vormkracht10\PermamentCache();
+echo $permamentCache->echoPhrase('Hello, Vormkracht10!');
 ```
 
 ## Testing
@@ -76,8 +76,8 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## Credits
 
-- [Mark van Eijk](https://github.com/vormkracht10)
-- [All Contributors](../../contributors)
+-   [Mark van Eijk](https://github.com/vormkracht10)
+-   [All Contributors](../../contributors)
 
 ## License
 
