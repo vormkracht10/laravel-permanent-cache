@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Vormkracht10\LaravelPermanentCache\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class LaravelPermanentCacheCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'laravel-permanent-cache';
 
     public $description = 'My command';
 
