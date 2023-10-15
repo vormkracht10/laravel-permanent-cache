@@ -1,11 +1,11 @@
-# This is my package laravel-permanent-cache
+# Laravel Permanent Cache
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/vormkracht10/laravel-permanent-cache.svg?style=flat-square)](https://packagist.org/packages/vormkracht10/laravel-permanent-cache)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/vormkracht10/laravel-permanent-cache/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/vormkracht10/laravel-permanent-cache/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/vormkracht10/laravel-permanent-cache/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/vormkracht10/laravel-permanent-cache/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/vormkracht10/laravel-permanent-cache.svg?style=flat-square)](https://packagist.org/packages/vormkracht10/laravel-permanent-cache)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+This package aims to provide functionality of using permanent cache for heavy database queries or tasks in Laravel. The permanent cache updates itself in the background using a scheduled task, so no visitors are harmed waiting long on a given request.
 
 ## Installation
 
