@@ -32,10 +32,9 @@ abstract class Cached
     protected $event = null;
 
     /**
-     * @param T $event
-     * @return void
+     * @param  T  $event
      */
-    public final function handle($event = null): void
+    final public function handle($event = null): void
     {
         [$driver, $ident] = self::parseCacheString($this->cache);
 
@@ -44,7 +43,7 @@ abstract class Cached
         );
     }
 
-    public final static function get()
+    final public static function get()
     {
         $cache = (new ReflectionClass(static::class))
             ->getProperty('cache')
@@ -60,7 +59,7 @@ abstract class Cached
      *
      * @throws ReflectionException
      */
-    public final static function getListenerEvent(): string
+    final public static function getListenerEvent(): string
     {
         $reflection = new ReflectionClass(static::class);
 
@@ -68,16 +67,13 @@ abstract class Cached
 
         return $concrete ?? ($reflection
             ->getMethod('run')
-            ->getParameters()
-            [0] ?? null)
+            ->getParameters()[0] ?? null)
             ?->getType()
             ?->getName()
             ?? UpdatingPermanentCacheEvent::class;
     }
 
     /**
-     * @param string $cache
-     *
      * @return array{string, string}
      */
     private static function parseCacheString(string $cache): array

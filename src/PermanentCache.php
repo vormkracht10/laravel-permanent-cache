@@ -4,15 +4,13 @@ namespace Vormkracht10\PermanentCache;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
-use Vormkracht10\PermanentCache\Events\UpdatingPermanentCacheEvent;
 
 class PermanentCache
 {
     protected array $cachers = [];
 
     /**
-     * @param array<int, class-string<Cached>> $cachers
-     *
+     * @param  array<int, class-string<Cached>>  $cachers
      * @return $this
      */
     public function caches(array $cachers): self
