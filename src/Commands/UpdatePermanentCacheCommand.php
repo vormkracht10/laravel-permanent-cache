@@ -4,9 +4,9 @@ namespace Vormkracht10\PermanentCache\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\Concerns\InteractsWithIO;
-use Vormkracht10\PermamentCache\Events\PermanentCacheUpdated;
-use Vormkracht10\PermamentCache\Events\PermanentCacheUpdateFailed;
-use Vormkracht10\PermamentCache\Facades\PermanentCache;
+use Vormkracht10\permanentCache\Events\PermanentCacheUpdated;
+use Vormkracht10\permanentCache\Events\PermanentCacheUpdateFailed;
+use Vormkracht10\permanentCache\Facades\PermanentCache;
 use Vormkracht10\PermanentCache\Exceptions\CouldNotUpdatePermanentCache;
 
 class UpdatePermanentCacheCommand extends Command

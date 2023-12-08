@@ -1,12 +1,12 @@
 <?php
 
-namespace Vormkracht10\PermamentCache;
+namespace Vormkracht10\PermanentCache;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Vormkracht10\PermanentCache\Commands\UpdatePermanentCacheCommand;
 
-class PermamentCacheServiceProvider extends PackageServiceProvider
+class PermanentCacheServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {

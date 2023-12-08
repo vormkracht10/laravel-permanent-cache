@@ -1,16 +1,16 @@
 <?php
 
-namespace Vormkracht10\PermamentCache\Facades;
+namespace Vormkracht10\PermanentCache\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Vormkracht10\PermamentCache\PermamentCache
+ * @see \Vormkracht10\PermanentCache\PermanentCache
  */
-class PermamentCache extends Facade
+class PermanentCache extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return \Vormkracht10\PermamentCache\PermamentCache::class;
+        return \Vormkracht10\PermanentCache\PermanentCache::class;
     }
 }

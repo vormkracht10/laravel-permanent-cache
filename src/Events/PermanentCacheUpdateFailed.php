@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\PermamentCache\Events;
+namespace Vormkracht10\PermanentCache\Events;
 
 class PermanentCacheUpdateFailed
 {

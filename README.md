@@ -33,8 +33,8 @@ return [
 ## Usage
 
 ```php
-$permamentCache = new Vormkracht10\PermamentCache();
-echo $permamentCache->echoPhrase('Hello, Vormkracht10!');
+$permanentCache = new Vormkracht10\PermanentCache();
+echo $permanentCache->echoPhrase('Hello, Vormkracht10!');
 ```
 
 ## Testing
