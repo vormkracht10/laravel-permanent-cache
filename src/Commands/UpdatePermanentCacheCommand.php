@@ -4,10 +4,10 @@ namespace Vormkracht10\PermanentCache\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\Concerns\InteractsWithIO;
-use Vormkracht10\permanentCache\Events\PermanentCacheUpdated;
-use Vormkracht10\permanentCache\Events\PermanentCacheUpdateFailed;
-use Vormkracht10\permanentCache\Facades\PermanentCache;
+use Vormkracht10\PermanentCache\Events\PermanentCacheUpdated;
+use Vormkracht10\PermanentCache\Events\PermanentCacheUpdateFailed;
 use Vormkracht10\PermanentCache\Exceptions\CouldNotUpdatePermanentCache;
+use Vormkracht10\PermanentCache\Facades\PermanentCache;
 
 class UpdatePermanentCacheCommand extends Command
 {
@@ -34,7 +34,6 @@ class UpdatePermanentCacheCommand extends Command
                     ? $this->updateCache($check)
                     : $this->components->info("Skipped updating cache for {$class->getName()}");
             });
-        }
     }
 
     public function updateCache($class): void

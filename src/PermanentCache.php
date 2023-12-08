@@ -28,6 +28,7 @@ class PermanentCache
 
     /**
      * @return class-string|false
+     *
      * @throws \ReflectionException
      * @throws \Exception
      */
@@ -39,8 +40,7 @@ class PermanentCache
 
         return ((new \ReflectionClass($class))
             ->getMethod('run')
-            ->getParameters()
-            [0] ?? null)
+            ->getParameters()[0] ?? null)
             ?->getType()
             ?->getName()
             ?? false;
