@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'store' => env('PERMANENT_CACHE_STORE', 'file'),
+    'default_store' => env('DEFAULT_PERMANENT_CACHE_STORE', 'file'),
 ];

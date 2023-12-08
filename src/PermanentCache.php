@@ -10,11 +10,15 @@ class PermanentCache
 {
     protected array $cachers = [];
 
+    /**
+     * @param array<int, class-string<Cached>> $cachers
+     *
+     * @return $this
+     */
     public function caches(array $cachers): self
     {
         foreach ($cachers as $cacher) {
-            $event = $this->resolveEventType($cacher)
-                ?: UpdatingPermanentCacheEvent::class;
+            $event = $cacher::getListenerEvent();
 
             $resolved[$event][] = $cacher;
 
@@ -24,26 +28,6 @@ class PermanentCache
         $this->cachers = array_merge($this->cachers, $resolved ?? []);
 
         return $this;
-    }
-
-    /**
-     * @return class-string|false
-     *
-     * @throws \ReflectionException
-     * @throws \Exception
-     */
-    protected function resolveEventType(string $class): string|false
-    {
-        if (! method_exists($class, 'run')) {
-            throw new \Exception('Every cacher needs a run method.');
-        }
-
-        return ((new \ReflectionClass($class))
-            ->getMethod('run')
-            ->getParameters()[0] ?? null)
-            ?->getType()
-            ?->getName()
-            ?? false;
     }
 
     /**
