@@ -28,7 +28,7 @@ to easily cache data based on a schedule or an event.
 ## "Reactive" caches
 
 To get started with this Cached class, make a `HelloCache` class like so.
-This cache will respond to a`TestEvent` by caching whatever will
+This cache will respond to a `TestEvent` by caching whatever will
 be returned from the `run` method. 
 
 ```php
@@ -38,7 +38,7 @@ use Vormkracht10\PermanentCache\Cached;
 
 class HelloCache extends Cached
 {
-    protected $cache = 'redis:hello';
+    protected $store = 'redis:hello';
 
     public function run(TestEvent $event): string
     {
@@ -47,9 +47,9 @@ class HelloCache extends Cached
 }
 ```
 
-To know *where* to cache the returned value, we have the `$cache` property.
+To know *where* to cache the returned value, we have the `$store` property.
 This is formatted like `driver:identifier`, but you can also omit the `driver:` 
-like so `protected $cache = 'hello';` and we will use the config's `cache.default` value instead.
+like so `protected $store = 'hello';` and we will use the config's `cache.default` value instead.
 
 ##### if you don't want to type hint the `TestEvent` class in the `run` method, you can also explicitly specify the type like so `protected $event = TestEvent::class;`
 
@@ -68,7 +68,7 @@ use Vormkracht10\PermanentCache\Scheduled;
 
 class MinutesCache extends Cached implements Scheduled
 {
-    protected $cache = 'redis:minutes';
+    protected $store = 'redis:minutes';
 
     protected $expression = '* * * * *';
 
@@ -88,7 +88,7 @@ Let's take our previous snippet, and edit it a little to use Laravel's `Schedule
 ```php
 class MinutesCache extends Cached implements Scheduled
 {
-    protected $cache = 'redis:minutes';
+    protected $store = 'redis:minutes';
 
     public function run(): mixed
     {
@@ -112,7 +112,7 @@ class HelloCache extends Cached implements ShouldQueue
 {
     protected $connection = 'redis';
 
-    protected $cache = 'redis:hello';
+    protected $store = 'redis:hello';
 
     public function run(TestEvent $event): string
     {
@@ -121,7 +121,7 @@ class HelloCache extends Cached implements ShouldQueue
 }
 ```
 
-You can specify a whole bunch of things, like the queue connection using the `$connection` property.
+You can specify a bunch of things, like the queue connection using the `$connection` property.
 You can basically configure you cache as a Laravel job. This works because the `Cached` class from which 
 we are inheriting is structured like a Laravel job!
 

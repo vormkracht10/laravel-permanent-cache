@@ -22,7 +22,7 @@ abstract class Cached
      *
      * @var string|null
      */
-    protected $cache = null;
+    protected $store = null;
 
     /**
      * The event that this cacher will listen for, this is optional
@@ -49,8 +49,8 @@ abstract class Cached
      */
     final public function handle($event = null): void
     {
-        [$driver, $ident] = self::parseCacheString($this->cache
-            ?? throw new \Exception('The $cache property in ['.static::class.'] must be overridden'),
+        [$driver, $ident] = self::parseCacheString($this->store
+            ?? throw new \Exception('The $store property in ['.static::class.'] must be overridden'),
         );
         Cache::driver($driver)->forever($ident,
             /** @phpstan-ignore-next-line  */
@@ -79,12 +79,12 @@ abstract class Cached
      */
     final public static function get(): mixed
     {
-        $cache = (new ReflectionClass(static::class))
-            ->getProperty('cache')
+        $store = (new ReflectionClass(static::class))
+            ->getProperty('store')
             ->getDefaultValue();
 
-        [$driver, $ident] = self::parseCacheString($cache
-            ?? throw new \Exception('The $cache property in ['.static::class.'] must be overridden'),
+        [$driver, $ident] = self::parseCacheString($store
+            ?? throw new \Exception('The $store property in ['.static::class.'] must be overridden'),
         );
 
         return Cache::driver($driver)->get($ident);
@@ -130,9 +130,9 @@ abstract class Cached
     /**
      * @return array{string, string}
      */
-    private static function parseCacheString(string $cache): array
+    private static function parseCacheString(string $store): array
     {
-        [$driver, $ident] = explode(':', $cache) + [1 => null];
+        [$driver, $ident] = explode(':', $store) + [1 => null];
 
         if (is_null($ident)) {
             [$driver, $ident] = [config('cache.default'), $driver];
