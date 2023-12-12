@@ -60,8 +60,6 @@ abstract class Cached
 
     /**
      * Manually force a static cache to update.
-     *
-     * @return void
      */
     final public static function update(): void
     {
@@ -69,6 +67,7 @@ abstract class Cached
 
         if (! is_a(static::class, ShouldQueue::class, true)) {
             $instance->handle();
+
             return;
         }
 
