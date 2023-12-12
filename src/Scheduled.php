@@ -9,7 +9,7 @@ interface Scheduled
     /**
      * Define the schedule for this static cacher.
      *
-     * @param CallbackEvent $callback
+     * @param  CallbackEvent  $callback
      * @return void
      */
     public static function schedule($callback);

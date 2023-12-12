@@ -14,7 +14,7 @@ use ReflectionClass;
  */
 abstract class Cached
 {
-    use Queueable, InteractsWithQueue;
+    use InteractsWithQueue, Queueable;
 
     /**
      * The driver and identifier that will be used to cache this value.
@@ -45,10 +45,9 @@ abstract class Cached
      * Update the cached value, this method expects an event if
      * the cacher is not static.
      *
-     * @param E $event
-     * @return void
+     * @param  E  $event
      */
-    public final function handle($event = null): void
+    final public function handle($event = null): void
     {
         [$driver, $ident] = self::parseCacheString($this->cache
             ?? throw new \Exception('The $cache property in ['.static::class.'] must be overridden'),
@@ -61,10 +60,8 @@ abstract class Cached
 
     /**
      * Get the cached value this cacher provides.
-     *
-     * @return mixed
      */
-    public final static function get(): mixed
+    final public static function get(): mixed
     {
         $cache = (new ReflectionClass(static::class))
             ->getProperty('cache')
@@ -100,7 +97,7 @@ abstract class Cached
      *
      * @return class-string<E>|null
      */
-    public final static function getListenerEvent(): ?string
+    final public static function getListenerEvent(): ?string
     {
         $reflection = new ReflectionClass(static::class);
 
@@ -108,15 +105,12 @@ abstract class Cached
 
         return $concrete ?? ($reflection
             ->getMethod('run')
-            ->getParameters()
-            [0] ?? null)
+            ->getParameters()[0] ?? null)
             ?->getType()
             ?->getName();
     }
 
     /**
-     * @param string $cache
-     *
      * @return array{string, string}
      */
     private static function parseCacheString(string $cache): array
