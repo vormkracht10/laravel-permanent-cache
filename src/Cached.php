@@ -52,8 +52,8 @@ abstract class Cached
         [$driver, $ident] = self::parseCacheString($this->cache
             ?? throw new \Exception('The $cache property in ['.static::class.'] must be overridden'),
         );
-
         Cache::driver($driver)->forever($ident,
+            /** @phpstan-ignore-next-line  */
             $this->run($event),
         );
     }
@@ -120,6 +120,7 @@ abstract class Cached
 
         $concrete = $reflection->getProperty('event')->getDefaultValue();
 
+        /** @phpstan-ignore-next-line */
         return $concrete ?? ($reflection
             ->getMethod('run')
             ->getParameters()[0] ?? null)
