@@ -3,7 +3,7 @@
 namespace Vormkracht10\PermanentCache;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Cache;
 use ReflectionClass;
 
@@ -14,7 +14,7 @@ use ReflectionClass;
  */
 abstract class Cached
 {
-    use InteractsWithQueue, Queueable;
+    use Queueable;
 
     /**
      * The driver and identifier that will be used to cache this value.
@@ -56,6 +56,23 @@ abstract class Cached
         Cache::driver($driver)->forever($ident,
             $this->run($event),
         );
+    }
+
+    /**
+     * Manually force a static cache to update.
+     *
+     * @return void
+     */
+    final public static function update(): void
+    {
+        $instance = app()->make(static::class);
+
+        if (! is_a(static::class, ShouldQueue::class, true)) {
+            $instance->handle();
+            return;
+        }
+
+        dispatch($instance);
     }
 
     /**
