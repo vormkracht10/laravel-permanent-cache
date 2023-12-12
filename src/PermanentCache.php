@@ -17,8 +17,7 @@ class PermanentCache
     protected array $static = [];
 
     /**
-     * @param array<int, class-string<Cached>> $cachers
-     *
+     * @param  array<int, class-string<Cached>>  $cachers
      * @return $this
      */
     public function caches(array $cachers): self
@@ -28,10 +27,11 @@ class PermanentCache
 
             if (is_null($event)) {
                 $static[] = $cacher;
+
                 continue;
             }
 
-            $resolved[$event][]= $cacher;
+            $resolved[$event][] = $cacher;
 
             Event::listen($event, $cacher);
         }
