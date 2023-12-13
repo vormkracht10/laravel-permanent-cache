@@ -64,7 +64,7 @@ Thus, we need to schedule it.
 ### Scheduling with cron expressions
 
 You can use cron expressions to schedule your cache, a very basic example is shown below.
-This will "run" the cache every minut. 
+This will "run" the cache every minute. 
 
 ```php
 use Vormkracht10\PermanentCache\Scheduled;
