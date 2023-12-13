@@ -59,7 +59,12 @@ Static caches are a little different to the Reactive caches, these do not respon
 and must be called manually or scheduled. Here is an example.
 
 By default, a cache will not do anything if it doesn't listen for any events.
-Thus we need to schedule it.
+Thus, we need to schedule it.
+
+### Scheduling with cron expressions
+
+You can use cron expressions to schedule your cache, a very basic example is shown below.
+This will "run" the cache every minut. 
 
 ```php
 use Vormkracht10\PermanentCache\Scheduled;
@@ -79,8 +84,10 @@ class MinutesCache extends Cached implements Scheduled
 }
 ```
 
+### Static caches with Laravel magic
+
 Now you can run `php artisan schedule:work` and every minute, the `minutes` count will be incremented!
-Now, if you're anything like me, you don't really like writing raw cron expressions
+But, if you're anything like me, you don't really like writing raw cron expressions
 and much rather use Laravel's cool `Schedule` class. Well, you can.
 
 Let's take our previous snippet, and edit it a little to use Laravel's `Schedule` instead.
@@ -100,6 +107,15 @@ class MinutesCache extends Cached implements Scheduled
         $callback->everyMinute();
     }
 }
+```
+
+### Manually updating static caches.
+
+Manually updating static caches is very simple. Just use the static `update` method.
+This will automatically queue your job, if it should be.
+
+```php
+MinutesCache::update();
 ```
 
 ## Queued caches
