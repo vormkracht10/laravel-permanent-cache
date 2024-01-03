@@ -2,19 +2,34 @@
 
 namespace Vormkracht10\PermanentCache;
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
-use Vormkracht10\PermanentCache\Events\UpdatingPermanentCacheEvent;
 
 class PermanentCache
 {
+    /**
+     * @var array<class-string, array<class-string<Cached>>>
+     */
     protected array $cachers = [];
 
+    /**
+     * @var array<class-string, array<class-string<Cached>>>
+     */
+    protected array $static = [];
+
+    /**
+     * @param  array<int, class-string<Cached>>  $cachers
+     * @return $this
+     */
     public function caches(array $cachers): self
     {
         foreach ($cachers as $cacher) {
-            $event = $this->resolveEventType($cacher)
-                ?: UpdatingPermanentCacheEvent::class;
+            $event = $cacher::getListenerEvent();
+
+            if (is_null($event)) {
+                $static[] = $cacher;
+
+                continue;
+            }
 
             $resolved[$event][] = $cacher;
 
@@ -22,35 +37,18 @@ class PermanentCache
         }
 
         $this->cachers = array_merge($this->cachers, $resolved ?? []);
+        $this->static = array_merge($this->static, $static ?? []);
 
         return $this;
     }
 
-    /**
-     * @return class-string|false
-     *
-     * @throws \ReflectionException
-     * @throws \Exception
-     */
-    protected function resolveEventType(string $class): string|false
+    public function staticCaches(): array
     {
-        if (! method_exists($class, 'run')) {
-            throw new \Exception('Every cacher needs a run method.');
-        }
-
-        return ((new \ReflectionClass($class))
-            ->getMethod('run')
-            ->getParameters()[0] ?? null)
-            ?->getType()
-            ?->getName()
-            ?? false;
+        return $this->static;
     }
 
-    /**
-     * @return Collection<class-string, array<class-string>>
-     */
-    public function configuredCaches(): Collection
+    public function configuredCaches(): array
     {
-        return collect($this->cachers);
+        return $this->cachers;
     }
 }
