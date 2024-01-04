@@ -17,8 +17,9 @@ class PermanentCache
      */
     public function caches(array $cachers): self
     {
+        /** @var class-string<Cached> $cacher */
         foreach ($cachers as $cacher) {
-            $events = $cacher::getListenerEvent();
+            $events = $cacher::getListenerEvents();
 
             $resolved[$cacher] = $events;
 

@@ -4,6 +4,7 @@ namespace Vormkracht10\PermanentCache;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use ReflectionClass;
@@ -11,7 +12,7 @@ use ReflectionClass;
 /**
  * @method mixed run()
  *
- * @template E
+ * @template V
  */
 abstract class Cached
 {
@@ -30,7 +31,7 @@ abstract class Cached
      * as it can also be inferred by type hinting an argument
      * in the run method.
      *
-     * @var class-string<E>|null
+     * @var class-string|array<int, class-string>|null
      */
     protected $event = null;
 
@@ -46,13 +47,11 @@ abstract class Cached
      * Update the cached value, this method expects an event if
      * the cacher is not static.
      *
-     * @param  E  $event
+     * @internal You shouldn't call this yourself.
      */
     final public function handle($event = null): void
     {
-        [$driver, $ident] = self::parseCacheString($this->store
-            ?? throw new \Exception('The $store property in ['.static::class.'] must be overridden'),
-        );
+        [$driver, $ident] = self::store();
 
         Cache::driver($driver)->forever($ident,
             /** @phpstan-ignore-next-line */
@@ -63,36 +62,58 @@ abstract class Cached
     /**
      * Manually force a static cache to update.
      */
-    final public static function update(): void
+    final public static function update(): ?PendingDispatch
     {
         $instance = app()->make(static::class);
 
         if (! is_a(static::class, ShouldQueue::class, true)) {
             $instance->handle();
 
-            return;
+            return null;
         }
 
-        dispatch($instance);
+        return dispatch($instance);
     }
 
     /**
      * Get the cached value this cacher provides.
+     *
+     * @param  bool  $update Whether the cache should update
+     * when it doesn't hold the value yet.
+     * @return V|mixed|null
      */
-    final public static function get(): mixed
+    final public static function get($default = null, bool $update = false): mixed
     {
-        $store = (new ReflectionClass(static::class))
-            ->getProperty('store')
-            ->getDefaultValue();
+        [$driver, $ident] = self::store();
 
-        [$driver, $ident] = self::parseCacheString($store
-            ?? throw new \Exception('The $store property in ['.static::class.'] must be overridden'),
-        );
+        $cache = Cache::driver($driver);
 
-        return Cache::driver($driver)->get($ident);
+        if ($update && ! $cache->has($ident)) {
+            static::update()?->onConnection('sync');
+        }
+
+        return $cache->get($ident, $default);
     }
 
-    // Default implementation for the \Scheduled::schedule method.
+    /**
+     * Get the cached value this cacher provides.
+     *
+     * This method should be used inside your cachers
+     * instead of the static `static::get` method to prevent
+     * infinite recursion.
+     *
+     * @return V|mixed|null
+     */
+    final protected function value($default = null): mixed
+    {
+        [$driver, $ident] = self::store();
+
+        return Cache::driver($driver)->get(
+            $ident, $default,
+        );
+    }
+
+    /// Default implementation for the `\Scheduled::schedule` method.
     public static function schedule($callback)
     {
         if (! is_a(static::class, Scheduled::class, true)) {
@@ -113,20 +134,22 @@ abstract class Cached
     /**
      * Get the event (if any) this cacher listens for.
      *
-     * @return array<int, class-string<E>>
+     * @return array<int, class-string>
      */
-    final public static function getListenerEvent(): array
+    final public static function getListenerEvents(): array
     {
-        $reflection = new ReflectionClass(static::class);
+        return once(function () {
+            $reflection = new ReflectionClass(static::class);
 
-        $concrete = Arr::wrap($reflection->getProperty('event')->getDefaultValue());
+            $concrete = Arr::wrap($reflection->getProperty('event')->getDefaultValue());
 
-        /** @phpstan-ignore-next-line */
-        return $concrete ?: Arr::wrap(($reflection
-            ->getMethod('run')
-            ->getParameters()[0] ?? null)
-            ?->getType()
-            ?->getName());
+            /** @phpstan-ignore-next-line */
+            return $concrete ?: Arr::wrap(($reflection
+                ->getMethod('run')
+                ->getParameters()[0] ?? null)
+                ?->getType()
+                ?->getName());
+        });
     }
 
     /**
@@ -141,5 +164,23 @@ abstract class Cached
         }
 
         return [$driver, $ident];
+    }
+
+    /**
+     * Get the driver and identifier specified in the $store property.
+     *
+     * @return array{string, string}
+     */
+    private static function store(): array
+    {
+        return once(function () {
+            $store = (new ReflectionClass(static::class))
+                ->getProperty('store')
+                ->getDefaultValue();
+
+            return self::parseCacheString($store
+                ?? throw new \Exception('The $store property in ['.static::class.'] must be overridden'),
+            );
+        });
     }
 }
