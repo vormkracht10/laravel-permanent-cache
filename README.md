@@ -47,24 +47,75 @@ class HelloCache extends Cached
 }
 ```
 
+##### if you don't want to type hint the `TestEvent` class in the `run` method, you can also explicitly specify the type like so `protected $event = TestEvent::class;`
+
 To know *where* to cache the returned value, we have the `$store` property.
 This is formatted like `driver:identifier`, but you can also omit the `driver:` 
 like so `protected $store = 'hello';` and we will use the config's `cache.default` value instead.
 
-##### if you don't want to type hint the `TestEvent` class in the `run` method, you can also explicitly specify the type like so `protected $event = TestEvent::class;`
+---
+
+To get the value from a cache class, you can use the static `get` method.
+
+```php
+$greeting = HelloCache::get();
+```
+
+---
+
+You can specify a default value too.
+
+```php
+$greeting = HelloCache::get('Welcome');
+```
+
+---
+
+If you want the cache to update when it doesn't hold a value for
+your cache yet, you can set the `$update` argument to true.
+
+```php
+$greeting = HelloCache::get(update: true);
+```
+
+---
+
+### Reactive caches that listen to many events
+
+Sometimes you may want to update a cache when one of many events occur,
+for example you might want to gather some information on a page when
+some content is created, deleted or updated. 
+
+You can do that by assigning the `$event` property an array of event names.
+
+```php
+class SomeCache extends Cached 
+{
+    protected $event = [
+        ContentCreated::class,
+        ContentDeleted::class,
+        ContentUpdated::class,
+    ];
+
+    // You have access to an $event object here,
+    // but be careful! This event object may be any of
+    // the events listed above.
+    public function run($event)
+    {
+        // do something...
+    }
+}
+```
 
 ## "Static" caches
 
 Static caches are a little different to the Reactive caches, these do not respond to events
-and must be called manually or scheduled. Here is an example.
-
-By default, a cache will not do anything if it doesn't listen for any events.
-Thus, we need to schedule it.
+and must be updated manually or scheduled. Here is an example.
 
 ### Scheduling with cron expressions
 
 You can use cron expressions to schedule your cache, a very basic example is shown below.
-This will "run" the cache every minute. 
+This will run the cache every minute. 
 
 ```php
 use Vormkracht10\PermanentCache\Scheduled;
@@ -77,16 +128,18 @@ class MinutesCache extends Cached implements Scheduled
 
     protected $expression = '* * * * *';
 
-    public function run(): mixed
+    public function run(): int
     {
-        return CounterCache::get() + 1;
+        return $this->value() + 1;
     }
 }
 ```
 
+##### Warning: you should not use Cache::get() in the cache itself, use $this->value() instead, this is to prevent infinite recursion from happening.
+
 ### Static caches with Laravel magic
 
-Now you can run `php artisan schedule:work` and every minute, the `minutes` count will be incremented!
+Now you can run `php artisan schedule:work` and every minute, the `minutes` count will be incremented.
 But, if you're anything like me, you don't really like writing raw cron expressions
 and much rather use Laravel's cool `Schedule` class. Well, you can.
 
@@ -99,7 +152,7 @@ class MinutesCache extends Cached implements Scheduled
 
     public function run(): mixed
     {
-        return CounterCache::get() + 1;
+        return $this->value() + 1;
     }
     
     public static function schedule($callback)
@@ -139,7 +192,7 @@ class HelloCache extends Cached implements ShouldQueue
 
 You can specify a bunch of things, like the queue connection using the `$connection` property.
 You can basically configure you cache as a Laravel job. This works because the `Cached` class from which 
-we are inheriting is structured like a Laravel job!
+we are inheriting is structured like a Laravel job.
 
 ##### [Read more on Jobs & Queues](https://laravel.com/docs/queues)
 
