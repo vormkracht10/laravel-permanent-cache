@@ -35,4 +35,9 @@ class PermanentCache
     {
         return $this->cachers;
     }
+
+    public function staticCaches(): array
+    {
+        return array_filter($this->cachers);
+    }
 }
