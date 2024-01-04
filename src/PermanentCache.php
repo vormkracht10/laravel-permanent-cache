@@ -23,7 +23,6 @@ class PermanentCache
             $resolved[$cacher] = $events;
 
             Event::listen($events, $cacher);
-
         }
 
         $this->cachers = array_merge($this->cachers, $resolved ?? []);
