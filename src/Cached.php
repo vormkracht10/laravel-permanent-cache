@@ -4,6 +4,7 @@ namespace Vormkracht10\PermanentCache;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use ReflectionClass;
 
@@ -52,8 +53,9 @@ abstract class Cached
         [$driver, $ident] = self::parseCacheString($this->store
             ?? throw new \Exception('The $store property in ['.static::class.'] must be overridden'),
         );
+
         Cache::driver($driver)->forever($ident,
-            /** @phpstan-ignore-next-line  */
+            /** @phpstan-ignore-next-line */
             $this->run($event),
         );
     }
@@ -111,20 +113,20 @@ abstract class Cached
     /**
      * Get the event (if any) this cacher listens for.
      *
-     * @return class-string<E>|null
+     * @return array<int, class-string<E>>
      */
-    final public static function getListenerEvent(): ?string
+    final public static function getListenerEvent(): array
     {
         $reflection = new ReflectionClass(static::class);
 
-        $concrete = $reflection->getProperty('event')->getDefaultValue();
+        $concrete = Arr::wrap($reflection->getProperty('event')->getDefaultValue());
 
         /** @phpstan-ignore-next-line */
-        return $concrete ?? ($reflection
+        return $concrete ?: Arr::wrap(($reflection
             ->getMethod('run')
             ->getParameters()[0] ?? null)
             ?->getType()
-            ?->getName();
+            ?->getName());
     }
 
     /**
