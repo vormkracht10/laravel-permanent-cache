@@ -53,10 +53,12 @@ abstract class Cached
     {
         [$driver, $ident] = self::store();
 
-        Cache::driver($driver)->forever($ident,
-            /** @phpstan-ignore-next-line */
-            $this->run($event),
-        );
+        /** @phpstan-ignore-next-line */
+        if (null === $update = $this->run($event)) {
+            return;
+        }
+
+        Cache::driver($driver)->forever($ident, $update);
     }
 
     /**
