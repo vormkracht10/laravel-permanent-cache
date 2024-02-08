@@ -17,8 +17,9 @@
     ],
     "require": {
         "php": "^8.1",
+        "illuminate/contracts": "^10.0",
         "spatie/laravel-package-tools": "^1.14.0",
-        "illuminate/contracts": "^10.0"
+        "spatie/once": "^3.1"
     },
     "require-dev": {
         "laravel/pint": "^1.0",
@@ -34,8 +35,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Vormkracht10\\PermanentCache\\": "src/",
-            "Vormkracht10\\PermanentCache\\Database\\Factories\\": "database/factories/"
+            "Vormkracht10\\PermanentCache\\": "src/"
         }
     },
     "autoload-dev": {
