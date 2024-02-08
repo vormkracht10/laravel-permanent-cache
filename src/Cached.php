@@ -80,8 +80,8 @@ abstract class Cached
     /**
      * Get the cached value this cacher provides.
      *
-     * @param  bool  $update Whether the cache should update
-     * when it doesn't hold the value yet.
+     * @param  bool  $update  Whether the cache should update
+     *                        when it doesn't hold the value yet.
      * @return V|mixed|null
      */
     final public static function get($default = null, bool $update = false): mixed
