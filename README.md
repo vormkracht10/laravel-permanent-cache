@@ -22,8 +22,19 @@ composer require vormkracht10/laravel-permanent-cache
 
 # Usage
 
-This package provides a handy `Cached` class. This allows you
-to easily cache data based on a schedule or an event.
+This package provides a handy `Cached` class. This allows you to easily 
+cache data based on a schedule or an event.
+
+All caches you create must be registered to the `PermanentCache::caches` facade. 
+We recommend putting this in the `boot` method of your `AppServiceProvider`.
+
+```php
+use \Vormkracht10\PermanentCache\Facades\PermanentCache;
+
+PermanentCache::caches([
+    \App\Cache\SomeCache::class,
+]);
+```
 
 ## "Reactive" caches
 
