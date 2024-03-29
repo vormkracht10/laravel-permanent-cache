@@ -1,6 +1,6 @@
 {
     "name": "vormkracht10/laravel-permanent-cache",
-    "description": "This is my package laravel-permanent-cache",
+    "description": "Using Laravel Permanent Cache you can cache intensive operations permanently and update them in the background, so your users don't have to wait!",
     "keywords": [
         "vormkracht10",
         "laravel",
@@ -17,14 +17,14 @@
     ],
     "require": {
         "php": "^8.1",
-        "illuminate/contracts": "^10.0",
+        "illuminate/contracts": "^10.0|^11.0",
         "spatie/laravel-package-tools": "^1.14.0",
         "spatie/once": "^3.1"
     },
     "require-dev": {
         "laravel/pint": "^1.0",
-        "nunomaduro/collision": "^7.9",
-        "nunomaduro/larastan": "^2.0.1",
+        "nunomaduro/collision": "^7.9|^8.0",
+        "nunomaduro/larastan": "^2.0.0",
         "orchestra/testbench": "^8.0",
         "pestphp/pest": "^2.0",
         "pestphp/pest-plugin-arch": "^2.0",
