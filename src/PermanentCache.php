@@ -7,17 +7,17 @@ use Illuminate\Support\Facades\Event;
 class PermanentCache
 {
     /**
-     * @var array<class-string, array<class-string<Cached>>>
+     * @var array<class-string, array<class-string<Cached>, class-string<CachedComponent>>>
      */
     protected array $cachers = [];
 
     /**
-     * @param  array<int, class-string<Cached>>  $cachers
+     * @param  array<int, class-string<Cached>, class-string<CachedComponent>>  $cachers
      * @return $this
      */
     public function caches(array $cachers): self
     {
-        /** @var class-string<Cached> $cacher */
+        /** @var <class-string<Cached>, class-string<CachedComponent>> $cacher */
         foreach ($cachers as $cacher) {
             $events = $cacher::getListenerEvents();
 

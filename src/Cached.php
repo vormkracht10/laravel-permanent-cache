@@ -2,19 +2,21 @@
 
 namespace Vormkracht10\PermanentCache;
 
+use Closure;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use ReflectionClass;
+use Vormkracht10\PermanentCache\CachedComponent;
 
 /**
  * @method mixed run()
  *
  * @template V
  */
-abstract class Cached
+trait Cached
 {
     use Queueable;
 
@@ -53,9 +55,21 @@ abstract class Cached
     {
         [$driver, $ident] = self::store();
 
-        /** @phpstan-ignore-next-line */
-        if (null === $update = $this->run($event)) {
-            return;
+        if(is_subclass_of($this, \Vormkracht10\PermanentCache\CachedComponent::class)) {
+            $method = 'render';
+
+            /** @phpstan-ignore-next-line */
+            if (null === $update = (string) $this->{$method}($event)) {
+                return;
+            }
+        }
+        else {
+            $method = 'run';
+
+            /** @phpstan-ignore-next-line */
+            if (null === $update = $this->{$method}($event)) {
+                return;
+            }
         }
 
         Cache::driver($driver)->forever($ident, $update);
@@ -145,9 +159,16 @@ abstract class Cached
 
             $concrete = Arr::wrap($reflection->getProperty('event')->getDefaultValue());
 
+            if($reflection->isSubclassOf(\Vormkracht10\PermanentCache\CachedComponent::class)) {
+                $method = 'render';
+            }
+            else {
+                $method = 'run';
+            }
+
             /** @phpstan-ignore-next-line */
             return $concrete ?: Arr::wrap(($reflection
-                ->getMethod('run')
+                ->getMethod($method)
                 ->getParameters()[0] ?? null)
                 ?->getType()
                 ?->getName());
