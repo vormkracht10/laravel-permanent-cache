@@ -38,6 +38,6 @@ class PermanentCache
 
     public function staticCaches(): array
     {
-        return array_filter($this->cachers);
+        return array_keys(array_filter($this->cachers, fn ($events) => empty($events)));
     }
 }
