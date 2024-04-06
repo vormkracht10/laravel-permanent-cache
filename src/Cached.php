@@ -2,14 +2,12 @@
 
 namespace Vormkracht10\PermanentCache;
 
-use Closure;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use ReflectionClass;
-use Vormkracht10\PermanentCache\CachedComponent;
 
 /**
  * @method mixed run()
@@ -55,15 +53,14 @@ trait Cached
     {
         [$driver, $ident] = self::store();
 
-        if(is_subclass_of($this, \Vormkracht10\PermanentCache\CachedComponent::class)) {
+        if (is_subclass_of($this, \Vormkracht10\PermanentCache\CachedComponent::class)) {
             $method = 'render';
 
             /** @phpstan-ignore-next-line */
             if (null === $update = (string) $this->{$method}($event)) {
                 return;
             }
-        }
-        else {
+        } else {
             $method = 'run';
 
             /** @phpstan-ignore-next-line */
@@ -159,10 +156,9 @@ trait Cached
 
             $concrete = Arr::wrap($reflection->getProperty('event')->getDefaultValue());
 
-            if($reflection->isSubclassOf(\Vormkracht10\PermanentCache\CachedComponent::class)) {
+            if ($reflection->isSubclassOf(\Vormkracht10\PermanentCache\CachedComponent::class)) {
                 $method = 'render';
-            }
-            else {
+            } else {
                 $method = 'run';
             }
 

@@ -11,7 +11,7 @@ abstract class CachedComponent extends Component implements Scheduled
 
     public function resolveView()
     {
-        if(null !== $cache = $this->get()) {
+        if (null !== $cache = $this->get()) {
             return new HtmlString($cache);
         }
 
