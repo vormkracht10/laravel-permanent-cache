@@ -192,8 +192,10 @@ trait Cached
      */
     private static function store(): array
     {
-        return once(function () {
-            $store = (new ReflectionClass(static::class))
+        $class = static::class;
+
+        return once(function () use ($class) {
+            $store = (new ReflectionClass($class))
                 ->getProperty('store')
                 ->getDefaultValue();
 
