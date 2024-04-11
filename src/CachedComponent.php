@@ -12,7 +12,7 @@ abstract class CachedComponent extends Component implements Scheduled
 {
     use CachesValue;
 
-    /** @inheritdoc */
+    /** {@inheritdoc} */
     public function resolveView()
     {
         if (null !== $cache = $this->get()) {

@@ -9,7 +9,7 @@ class PermanentCache
     protected array $cachers = [];
 
     /**
-     * @param array<int, class-string<Cached|CachedComponent>> $cachers
+     * @param  array<int, class-string<Cached|CachedComponent>>  $cachers
      */
     public function caches(array $cachers): self
     {
