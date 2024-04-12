@@ -57,7 +57,7 @@ trait CachesValue
             return;
         }
 
-        if(is_a($value, View::class)) {
+        if (is_a($value, View::class)) {
             $value = (string) $value;
         }
 
