@@ -187,14 +187,12 @@ trait CachesValue
     {
         $class = static::class;
 
-        return once(function () use ($class) {
-            $store = (new ReflectionClass($class))
-                ->getProperty('store')
-                ->getDefaultValue();
+        $store = (new ReflectionClass($class))
+            ->getProperty('store')
+            ->getDefaultValue();
 
-            return self::parseCacheString($store
-                ?? throw new \Exception('The $store property in ['.static::class.'] must be overridden'),
-            );
-        });
+        return self::parseCacheString($store
+            ?? throw new \Exception('The $store property in ['.static::class.'] must be overridden'),
+        );
     }
 }
