@@ -20,10 +20,10 @@ class PermanentCacheServiceProvider extends PackageServiceProvider
 
     public function bootingPackage()
     {
-        $this->callAfterResolving(Schedule::class, fn (Schedule $schedule) => collect(Facades\PermanentCache::staticCaches())
-            ->filter(fn ($permanentCache) => is_a($permanentCache, Scheduled::class, true))
-            ->map(fn ($permanentCache) => is_array($permanentCache) ? $this->app->make(...$permanentCache) : $this->app->make($permanentCache)))
-            ->each(fn (Scheduled $permanentCache) => $permanentCache->schedule($schedule->job($permanentCache)))
+        $this->callAfterResolving(Schedule::class, fn (Schedule $schedule) => collect(Facades\PermanentCache::configuredCaches())
+            ->filter(fn ($parameters, $cacherClass) => is_a($cacherClass, Scheduled::class, true))
+            ->map(fn ($parameters, $cacherClass) => $this->app->make($cacherClass, $parameters))
+            ->each(fn (Scheduled $cacherClass) => $cacherClass->schedule($schedule->job($cacherClass)))
         );
     }
 }

@@ -18,15 +18,18 @@ class PermanentCache
     public function caches(array $cachers): self
     {
         /** @var <class-string<Cached>, class-string<CachedComponent>> $cacher */
-        foreach ($cachers as $cacher) {
-            $events = $cacher::getListenerEvents();
+        foreach ($cachers as $cacherClass => $parameters) {
+            if(is_numeric($cacherClass)) {
+                $cacherClass = $parameters;
+                $parameters = [];
+            }
 
-            $resolved[$cacher] = $events;
+            $events = $cacherClass::getListenerEvents();
 
-            Event::listen($events, $cacher);
+            Event::listen($events, fn () => $this->app->make($cacherClass, $parameters));
+
+            $this->cachers[$cacherClass] = $parameters;
         }
-
-        $this->cachers = array_merge($this->cachers, $resolved ?? []);
 
         return $this;
     }
@@ -34,10 +37,5 @@ class PermanentCache
     public function configuredCaches(): array
     {
         return $this->cachers;
-    }
-
-    public function staticCaches(): array
-    {
-        return array_keys(array_filter($this->cachers, fn ($events) => empty($events)));
     }
 }
