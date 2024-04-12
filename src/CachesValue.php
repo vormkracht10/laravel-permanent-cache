@@ -8,7 +8,6 @@ use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\View\View;
 use ReflectionClass;
 
 /**
@@ -53,7 +52,7 @@ trait CachesValue
     {
         [$driver, $ident] = self::store();
 
-        if(is_subclass_of(static::class, CachedComponent::class)) {
+        if (is_subclass_of(static::class, CachedComponent::class)) {
             $value = Blade::renderComponent($this);
         }
 
