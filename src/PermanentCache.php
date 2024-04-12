@@ -19,7 +19,7 @@ class PermanentCache
     {
         /** @var <class-string<Cached>, class-string<CachedComponent>> $cacher */
         foreach ($cachers as $cacherClass => $parameters) {
-            if(is_numeric($cacherClass)) {
+            if (is_numeric($cacherClass)) {
                 $cacherClass = $parameters;
                 $parameters = [];
             }
