@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use ReflectionClass;
@@ -48,17 +49,17 @@ trait CachesValue
      *
      * @internal You shouldn't call this yourself.
      */
-    final public function handle($event = null): void
+    final public function handle($parameters): void
     {
         [$driver, $ident] = self::store();
 
-        /** @phpstan-ignore-next-line */
-        if (null === $value = $this->{self::getUpdateMethodString()}($event)) {
-            return;
+        if(is_subclass_of(static::class, CachedComponent::class)) {
+            $value = Blade::renderComponent($this);
         }
 
-        if (is_a($value, View::class)) {
-            $value = (string) $value;
+        /** @phpstan-ignore-next-line */
+        if (null === $value = $this->{self::getUpdateMethodString()}()) {
+            return;
         }
 
         Cache::driver($driver)->forever($ident, $value);
@@ -67,12 +68,12 @@ trait CachesValue
     /**
      * Manually force a static cache to update.
      */
-    final public static function update(): ?PendingDispatch
+    final public static function update($parameters = []): ?PendingDispatch
     {
-        $instance = app()->make(static::class);
+        $instance = app()->make(static::class, $parameters);
 
         if (! is_a(static::class, ShouldQueue::class, true)) {
-            $instance->handle();
+            $instance->handle($parameters);
 
             return null;
         }
@@ -122,7 +123,7 @@ trait CachesValue
     public static function schedule($callback)
     {
         if (! is_a(static::class, Scheduled::class, true)) {
-            throw new \Exception('Can not schedule a cacher that does not implement the ['.Scheduled::class.'] interface');
+            throw new \Exception('Cannot schedule a cacher that does not implement the ['.Scheduled::class.'] interface');
         }
 
         $reflection = new ReflectionClass(static::class);
