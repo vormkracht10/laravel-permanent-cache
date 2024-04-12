@@ -40,7 +40,7 @@ PermanentCache::caches([
 
 To get started with this Cached class, make a `HelloCache` class like so.
 This cache will respond to a `TestEvent` by caching whatever will
-be returned from the `run` method. 
+be returned from the `run` method.
 
 ```php
 use Vormkracht10\PermanentCache\Cached;
