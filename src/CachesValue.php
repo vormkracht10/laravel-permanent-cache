@@ -167,15 +167,22 @@ trait CachesValue
     /**
      * @return array{string, string}
      */
-    private static function parseCacheString(string $store): array
+    private static function parseCacheString($class, ?string $store): array
     {
-        [$driver, $ident] = explode(':', $store) + [1 => null];
-
-        if (is_null($ident)) {
-            [$driver, $ident] = [config('cache.default'), $driver];
+        if($store && strPos($store, ':')) {
+            $cacheDriver = substr($store, 0, strPos($store, ':'));
+            $cacheKey = substr($store, strPos($store, ':') + 1);
+        }
+        else {
+            $cacheDriver = $store;
         }
 
-        return [$driver, $ident];
+        $cacheDriver ??= config('cache.default');
+        $cacheKey ??= str_replace('\\', '_', strtolower($class));
+
+        $cacheKey = preg_replace('/[^A-Za-z0-9]+/', '_', $cacheKey);
+
+        return [$cacheDriver, $cacheKey];
     }
 
     /**
@@ -191,8 +198,6 @@ trait CachesValue
             ->getProperty('store')
             ->getDefaultValue();
 
-        return self::parseCacheString($store
-            ?? throw new \Exception('The $store property in ['.static::class.'] must be overridden'),
-        );
+        return self::parseCacheString($class, $store);
     }
 }
