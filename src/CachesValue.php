@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\View\View;
 use ReflectionClass;
 
 /**
@@ -52,11 +53,15 @@ trait CachesValue
         [$driver, $ident] = self::store();
 
         /** @phpstan-ignore-next-line */
-        if (null === $update = $this->{self::getUpdateMethodString()}($event)) {
+        if (null === $value = $this->{self::getUpdateMethodString()}($event)) {
             return;
         }
 
-        Cache::driver($driver)->forever($ident, $update);
+        if(is_a($value, View::class)) {
+            $value = (string) $value;
+        }
+
+        Cache::driver($driver)->forever($ident, $value);
     }
 
     /**
