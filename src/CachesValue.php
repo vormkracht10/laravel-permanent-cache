@@ -169,11 +169,10 @@ trait CachesValue
      */
     private static function parseCacheString($class, ?string $store): array
     {
-        if($store && strPos($store, ':')) {
-            $cacheDriver = substr($store, 0, strPos($store, ':'));
-            $cacheKey = substr($store, strPos($store, ':') + 1);
-        }
-        else {
+        if ($store && strpos($store, ':')) {
+            $cacheDriver = substr($store, 0, strpos($store, ':'));
+            $cacheKey = substr($store, strpos($store, ':') + 1);
+        } else {
             $cacheDriver = $store;
         }
 
