@@ -8,7 +8,7 @@ use Illuminate\View\Component;
 /**
  * @method string render()
  */
-abstract class CachedComponent extends Component implements Scheduled
+abstract class CachedComponent extends Component
 {
     use CachesValue;
 
