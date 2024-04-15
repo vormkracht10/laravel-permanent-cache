@@ -2,39 +2,43 @@
 
 namespace Vormkracht10\PermanentCache;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Event;
+use SplObjectStorage;
 
 class PermanentCache
 {
-    /**
-     * @var array<class-string, array<class-string<Cached>, class-string<CachedComponent>>>
-     */
-    protected array $cachers = [];
+    protected SplObjectStorage $cachers;
+
+    public function __construct(protected Application $app)
+    {
+        $this->cachers = new SplObjectStorage;
+    }
 
     /**
-     * @param  array<int, class-string<Cached>, class-string<CachedComponent>>  $cachers
-     * @return $this
+     * @param  array<int, class-string<Cached|CachedComponent>>  $cachers
      */
     public function caches(array $cachers): self
     {
-        /** @var <class-string<Cached>, class-string<CachedComponent>> $cacher */
-        foreach ($cachers as $cacherClass => $parameters) {
-            if (is_numeric($cacherClass)) {
-                $cacherClass = $parameters;
+        foreach ($cachers as $cacher => $parameters) {
+            if (is_int($cacher)) {
+                $cacher = $parameters;
                 $parameters = [];
             }
 
-            $events = $cacherClass::getListenerEvents();
+            $cacher = $this->app->make($cacher, $parameters);
 
-            Event::listen($events, fn () => $this->app->make($cacherClass, $parameters));
+            $events = $cacher::getListenerEvents();
 
-            $this->cachers[$cacherClass] = $parameters;
+            Event::listen($events, $cacher);
+
+            $this->cachers[$cacher] = $events;
         }
 
         return $this;
     }
 
-    public function configuredCaches(): array
+    public function configuredCaches(): SplObjectStorage
     {
         return $this->cachers;
     }
