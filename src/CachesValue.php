@@ -4,10 +4,10 @@ namespace Vormkracht10\PermanentCache;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Console\Scheduling\CallbackEvent;
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 use ReflectionClass;
 
@@ -54,7 +54,7 @@ trait CachesValue
         [$driver, $ident] = self::store();
 
         $value = is_subclass_of(static::class, CachedComponent::class)
-            ? \Blade::renderComponent($this)
+            ? Blade::renderComponent($this)
             : $this->run($event);
 
         if (is_null($value)) {
