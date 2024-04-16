@@ -67,7 +67,7 @@ trait CachesValue
     /**
      * Manually force a static cache to update.
      */
-    final public static function update($parameters = []): ?PendingDispatch
+    final public static function update(array $parameters = []): ?PendingDispatch
     {
         $instance = app()->make(static::class, $parameters);
 
@@ -87,14 +87,14 @@ trait CachesValue
      *                        when it doesn't hold the value yet.
      * @return V|mixed|null
      */
-    final public static function get($default = null, bool $update = false): mixed
+    final public static function get(array $parameters = [], $default = null, bool $update = false): mixed
     {
         [$driver, $ident] = self::store();
 
         $cache = Cache::driver($driver);
 
         if ($update && ! $cache->has($ident)) {
-            static::update()?->onConnection('sync');
+            static::update($parameters)?->onConnection('sync');
         }
 
         return $cache->get($ident, $default);
