@@ -3,10 +3,11 @@
 namespace Vormkracht10\PermanentCache;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Console\Scheduling\CallbackEvent;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 use ReflectionClass;
 
@@ -48,16 +49,15 @@ trait CachesValue
      *
      * @internal You shouldn't call this yourself.
      */
-    final public function handle($parameters): void
+    final public function handle($event = null): void
     {
         [$driver, $ident] = self::store();
 
-        if (is_subclass_of(static::class, CachedComponent::class)) {
-            $value = Blade::renderComponent($this);
-        }
+        $value = is_subclass_of(static::class, CachedComponent::class)
+            ? \Blade::renderComponent($this)
+            : $this->run($event);
 
-        /** @phpstan-ignore-next-line */
-        if (null === $value = $this->{self::getUpdateMethodString()}()) {
+        if (is_null($value)) {
             return;
         }
 
@@ -119,6 +119,7 @@ trait CachesValue
     }
 
     /// Default implementation for the `\Scheduled::schedule` method.
+    /** @param CallbackEvent $callback */
     public static function schedule($callback)
     {
         if (! is_a(static::class, Scheduled::class, true)) {
@@ -161,7 +162,7 @@ trait CachesValue
 
     private static function getUpdateMethodString(): string
     {
-        return is_subclass_of(static::class, CachedComponent::class) ? 'render' : 'run';
+        return is_a(static::class, CachedComponent::class, true) ? 'render' : 'run';
     }
 
     /**
