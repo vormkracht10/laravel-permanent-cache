@@ -174,7 +174,7 @@ trait CachesValue
             $cacheDriver = substr($store, 0, strpos($store, ':'));
             $cacheKey = substr($store, strpos($store, ':') + 1);
         } else {
-            $cacheDriver = $store;
+            $cacheKey = $store;
         }
 
         $cacheDriver ??= config('cache.default');
