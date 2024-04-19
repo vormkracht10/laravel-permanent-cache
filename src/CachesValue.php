@@ -64,7 +64,9 @@ trait CachesValue
             ? Blade::renderComponent($this)
             : $this->run($event);
 
-        if (is_null($value)) return;
+        if (is_null($value)) {
+            return;
+        }
 
         Cache::driver($driver)->forever($ident, $value);
 
@@ -115,7 +117,7 @@ trait CachesValue
     /**
      * Get the cached value this cacher provides.
      *
-     * @param bool $update Whether the cache should update
+     * @param  bool  $update  Whether the cache should update
      *                        when it doesn't hold the value yet.
      * @return V|mixed|null
      */
@@ -149,7 +151,7 @@ trait CachesValue
     final protected function value($default = null): mixed
     {
         if (is_subclass_of(static::class, CachedComponent::class) && ! is_null($default)) {
-            throw new \Exception("A cached component can not have a default return value");
+            throw new \Exception('A cached component can not have a default return value');
         }
 
         [$driver, $ident] = $this->store($this->parameters);
@@ -160,7 +162,6 @@ trait CachesValue
     }
 
     /// Default implementation for the `\Scheduled::schedule` method.
-
     /** @param CallbackEvent $callback */
     public static function schedule($callback)
     {
