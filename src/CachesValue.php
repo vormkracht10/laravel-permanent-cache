@@ -64,7 +64,9 @@ trait CachesValue
             ? Blade::renderComponent($this)
             : $this->run($event);
 
-        if (is_null($value)) return;
+        if (is_null($value)) {
+            return;
+        }
 
         Cache::driver($driver)->forever($ident, $value);
 
@@ -154,8 +156,8 @@ trait CachesValue
      */
     final protected function value($default = null): mixed
     {
-        if (is_subclass_of(static::class, CachedComponent::class) && !is_null($default)) {
-            throw new \Exception("A cached component can not have a default return value");
+        if (is_subclass_of(static::class, CachedComponent::class) && ! is_null($default)) {
+            throw new \Exception('A cached component can not have a default return value');
         }
 
         [$driver, $ident] = self::store($this->parameters);
