@@ -58,7 +58,7 @@ trait CachesValue
     {
         $this->updating = true;
 
-        [$driver, $ident] = self::store($this->parameters);
+        [$driver, $ident] = $this->store($this->parameters);
 
         $value = is_subclass_of(static::class, CachedComponent::class)
             ? Blade::renderComponent($this)
@@ -74,12 +74,6 @@ trait CachesValue
     final protected function isUpdating(): bool
     {
         return $this->updating;
-    }
-
-    final protected function override($with): void
-    {
-        [$driver, $ident] = self::store($this->parameters);
-        Cache::driver($driver)->forever($ident, $with);
     }
 
     /**
@@ -121,7 +115,7 @@ trait CachesValue
     /**
      * Get the cached value this cacher provides.
      *
-     * @param  bool  $update  Whether the cache should update
+     * @param bool $update Whether the cache should update
      *                        when it doesn't hold the value yet.
      * @return V|mixed|null
      */
@@ -154,11 +148,11 @@ trait CachesValue
      */
     final protected function value($default = null): mixed
     {
-        if (is_subclass_of(static::class, CachedComponent::class) && !is_null($default)) {
+        if (is_subclass_of(static::class, CachedComponent::class) && ! is_null($default)) {
             throw new \Exception("A cached component can not have a default return value");
         }
 
-        [$driver, $ident] = self::store($this->parameters);
+        [$driver, $ident] = $this->store($this->parameters);
 
         return Cache::driver($driver)->get(
             $ident, $default,
@@ -166,6 +160,7 @@ trait CachesValue
     }
 
     /// Default implementation for the `\Scheduled::schedule` method.
+
     /** @param CallbackEvent $callback */
     public static function schedule($callback)
     {
