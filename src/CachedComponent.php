@@ -12,17 +12,19 @@ abstract class CachedComponent extends Component
 {
     use CachesValue;
 
-    protected function registerParameters(array $args): void
-    {
-        $parameters = (new \ReflectionClass(static::class))->getConstructor()->getParameters();
-        $this->parameters = collect($args)->mapWithKeys(fn ($v, $k) => [$parameters[$k]->name => $v])->toArray();
-    }
-
     /** {@inheritdoc} */
     public function resolveView()
     {
+        $this->parameters = collect((new \ReflectionClass(static::class))
+            ->getProperties(\ReflectionProperty::IS_PUBLIC))
+            ->filter(fn (\ReflectionProperty $p) => $p->class === static::class)
+            ->mapWithKeys(fn (\ReflectionProperty $p) => [$p->name => $p->getValue($this)])
+            ->toArray();
+
         if ($this->isUpdating()) {
-            return $this->get($this->parameters) ?? parent::resolveView();
+            $value = $this->get($this->parameters);
+
+            return is_null($value) ? parent::resolveView() : new HtmlString($value);
         }
 
         if (null !== $cache = $this->get($this->parameters, update: true)) {
