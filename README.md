@@ -210,6 +210,19 @@ Manually updating a permanent caches is very simple. Just use the static `update
 LongTaskInPermanentCache::update(['parameter' => 'value']);
 ```
 
+## Events
+
+These events get dispatched when executing a Permanent Cache class:
+
+```
+php
+# Before updating the cache
+use Vormkracht10\PermanentCache\Events\PermanentCacheUpdating;
+
+# When the cache is updated
+use Vormkracht10\PermanentCache\Events\PermanentCacheUpdated;
+```
+
 ##### [Read more on Jobs & Queues](https://laravel.com/docs/queues)
 
 ## Credits
