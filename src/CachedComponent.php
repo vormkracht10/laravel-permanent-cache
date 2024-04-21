@@ -21,16 +21,8 @@ abstract class CachedComponent extends Component
             ->mapWithKeys(fn (\ReflectionProperty $p) => [$p->name => $p->getValue($this)])
             ->toArray();
 
-        if ($this->isUpdating()) {
-            $value = $this->get($this->parameters);
+        $value = $this->get($this->parameters, update: $this->shouldBeUpdating());
 
-            return is_null($value) ? parent::resolveView() : new HtmlString($value);
-        }
-
-        if (null !== $cache = $this->get($this->parameters, update: true)) {
-            return new HtmlString((string) $cache);
-        }
-
-        return parent::resolveView();
+        return is_null($value) ? parent::resolveView() : new HtmlString($value);
     }
 }

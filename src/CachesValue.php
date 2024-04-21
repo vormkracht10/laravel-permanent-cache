@@ -60,8 +60,6 @@ trait CachesValue
     {
         PermanentCacheUpdating::dispatch($this);
 
-        $this->updating = true;
-
         [$driver, $ident] = $this->store($this->parameters);
 
         $value = is_subclass_of(static::class, CachedComponent::class)
@@ -75,13 +73,6 @@ trait CachesValue
         PermanentCacheUpdated::dispatch($this);
 
         Cache::driver($driver)->forever($ident, $value);
-
-        $this->updating = false;
-    }
-
-    final protected function isUpdating(): bool
-    {
-        return $this->updating;
     }
 
     /**
@@ -100,6 +91,11 @@ trait CachesValue
         $extension = http_build_query($parameters);
 
         return self::parseCacheString($class, $store, '?'.$extension);
+    }
+
+    public function shouldBeUpdating(): bool
+    {
+        return app()->runningInConsole();
     }
 
     /**
