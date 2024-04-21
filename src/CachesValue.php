@@ -178,7 +178,7 @@ trait CachesValue
     public static function schedule($callback)
     {
         if (! is_a(static::class, Scheduled::class, true)) {
-            throw new \Exception("Can't schedule a cacher that does not implement the [".Scheduled::class."] interface");
+            throw new \Exception("Can't schedule a cacher that does not implement the [".Scheduled::class.'] interface');
         }
 
         $reflection = new ReflectionClass(static::class);

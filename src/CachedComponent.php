@@ -21,7 +21,7 @@ abstract class CachedComponent extends Component
             ->mapWithKeys(fn (\ReflectionProperty $p) => [$p->name => $p->getValue($this)])
             ->toArray();
 
-        if(
+        if (
             $this->isUpdating ||
             $this->shouldBeUpdating()
         ) {
