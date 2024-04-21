@@ -25,7 +25,7 @@ cache data based on a schedule or an event.
 All caches you create must be registered to the `PermanentCache::caches` facade. 
 We recommend putting this in the `boot` method of your `AppServiceProvider`.
 
-You can register caches using multiple ways:
+You can register caches in multiple ways:
 
 ```php
 use \Vormkracht10\PermanentCache\Facades\PermanentCache;
