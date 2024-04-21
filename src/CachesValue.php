@@ -48,7 +48,7 @@ trait CachesValue
     /** @var array<string, mixed> */
     protected $parameters = [];
 
-    private bool $updating = false;
+    private bool $isUpdating = false;
 
     /**
      * Update the cached value, this method expects an event if
@@ -56,8 +56,10 @@ trait CachesValue
      *
      * @internal You shouldn't call this yourself.
      */
-    final public function handle($event = null): void
+    final public function handle($event = null): mixed
     {
+        $this->isUpdating = true;
+
         PermanentCacheUpdating::dispatch($this);
 
         [$driver, $ident] = $this->store($this->parameters);
@@ -67,12 +69,16 @@ trait CachesValue
             : $this->run($event);
 
         if (is_null($value)) {
-            return;
+            return null;
         }
+
+        $this->isUpdating = false;
 
         PermanentCacheUpdated::dispatch($this);
 
         Cache::driver($driver)->forever($ident, $value);
+
+        return $value;
     }
 
     /**
@@ -107,13 +113,14 @@ trait CachesValue
 
         $instance->parameters = $parameters;
 
-        if (! is_subclass_of(static::class, ShouldQueue::class)) {
-            $instance->handle();
-
-            return null;
+        if (
+            app()->runningInConsole() &&
+            is_subclass_of(static::class, ShouldQueue::class)
+        ) {
+            return dispatch($instance);
         }
 
-        return dispatch($instance);
+        return $instance->handle();
     }
 
     /**
@@ -134,8 +141,11 @@ trait CachesValue
 
         $cache = Cache::driver($driver);
 
-        if ($update && ! $cache->has($ident)) {
-            static::update($parameters ?? [])?->onConnection('sync');
+        if (
+            $update ||
+            ! $cache->has($ident)
+        ) {
+            return static::update($parameters ?? []);
         }
 
         return $cache->get($ident, $default);
@@ -153,7 +163,7 @@ trait CachesValue
     final protected function value($default = null): mixed
     {
         if (is_subclass_of(static::class, CachedComponent::class) && ! is_null($default)) {
-            throw new \Exception('A cached component can not have a default return value');
+            throw new \Exception("A cached component can't have a default return value");
         }
 
         [$driver, $ident] = $this->store($this->parameters);
@@ -168,7 +178,7 @@ trait CachesValue
     public static function schedule($callback)
     {
         if (! is_a(static::class, Scheduled::class, true)) {
-            throw new \Exception('Cannot schedule a cacher that does not implement the ['.Scheduled::class.'] interface');
+            throw new \Exception("Can't schedule a cacher that does not implement the [".Scheduled::class."] interface");
         }
 
         $reflection = new ReflectionClass(static::class);
