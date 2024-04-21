@@ -212,7 +212,7 @@ LongTaskInPermanentCache::update(['parameter' => 'value']);
 
 ## Events dispatched when updating Permanent Caches
 
-These events get dispatched when executing a Permanent Cache class:
+These events get dispatched when a Permanent Cache gets updated:
 
 ```php
 # Before updating the cache
