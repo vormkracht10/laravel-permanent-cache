@@ -210,12 +210,11 @@ Manually updating a permanent caches is very simple. Just use the static `update
 LongTaskInPermanentCache::update(['parameter' => 'value']);
 ```
 
-## Events
+## Events dispatched when updating Permanent Caches
 
 These events get dispatched when executing a Permanent Cache class:
 
-```
-php
+```php
 # Before updating the cache
 use Vormkracht10\PermanentCache\Events\PermanentCacheUpdating;
 
