@@ -107,7 +107,7 @@ trait CachesValue
     /**
      * Manually force a static cache to update.
      */
-    final public static function update($parameters = []): ?PendingDispatch
+    final public static function update($parameters = []): mixed
     {
         $instance = app()->make(static::class, $parameters);
 
