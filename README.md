@@ -28,182 +28,178 @@ cache data based on a schedule or an event.
 All caches you create must be registered to the `PermanentCache::caches` facade. 
 We recommend putting this in the `boot` method of your `AppServiceProvider`.
 
+You can register caches using multiple ways:
+
 ```php
 use \Vormkracht10\PermanentCache\Facades\PermanentCache;
 
+# When you don't need parameters, you can use direct parameters or an array:
+
+# Without array
+PermanentCache::caches(
+    LongRunningTask::class,
+    LongerRunningTask::class,
+);
+
+# As an array
+$caches = [
+    LongRunningTask::class,
+    LongerRunningTask::class,
+];
+
+PermanentCache::caches($caches);
+
+# Specifying parameters per class
 PermanentCache::caches([
-    \App\Cache\SomeCache::class,
+    LongRunningTask::class => ['type' => 'long'],
+    LongerRunningTask::class => ['type' => 'longer'],
 ]);
+
+# As an multi-dimensional array when you need to use the same class multiple times but with different parameters
+PermanentCache::caches(
+    [LongRunningTask::class => ['type' => 'long']],
+    [LongRunningTask::class => ['type' => 'longer']],
+);
 ```
 
-## "Reactive" caches
+## Definition of a Permanent Cache
 
-To get started with this Cached class, make a `HelloCache` class like so.
-This cache will respond to a `TestEvent` by caching whatever will
-be returned from the `run` method.
+A Permanent Cache could be a task that runs longer than you'd actually want and not want to bother your users with. That's why you need to run it in the background, updating periodically using the scheduler or when events happen and/or using help of Laravel's queue system.
+
+You can define the cache store and key using a `$store` property on the class, following the definition: `store:key`, for example: `redis:a-unique-cache-key`:
 
 ```php
 use Vormkracht10\PermanentCache\Cached;
 
-// ...
-
-class HelloCache extends Cached
+class LongRunningTask extends Cached
 {
-    protected $store = 'redis:hello';
+    protected $store = 'redis:a-unique-cache-key';
 
-    public function run(TestEvent $event): string
+    public function run(): string
     {
-        return "Hallo, {$event->name}!";
+        return "I'm executing a long running task!";
     }
 }
 ```
 
-##### if you don't want to type hint the `TestEvent` class in the `run` method, you can also explicitly specify the type like so `protected $event = TestEvent::class;`
+## Caches can listen for events
 
-To know *where* to cache the returned value, we have the `$store` property.
-This is formatted like `driver:identifier`, but you can also omit the `driver:` 
-like so `protected $store = 'hello';` and we will use the config's `cache.default` value instead.
-
----
-
-To get the value from a cache class, you can use the static `get` method.
+Permanent Caches can be updated by listening to events using an array on the `$events` property:
 
 ```php
-$greeting = HelloCache::get();
-```
+use Vormkracht10\PermanentCache\Cached;
 
----
-
-You can specify a default value too.
-
-```php
-$greeting = HelloCache::get('Welcome');
-```
-
----
-
-If you want the cache to update when it doesn't hold a value for
-your cache yet, you can set the `$update` argument to true.
-
-```php
-$greeting = HelloCache::get(update: true);
-```
-
----
-
-### Reactive caches that listen to many events
-
-Sometimes you may want to update a cache when one of many events occur,
-for example you might want to gather some information on a page when
-some content is created, deleted or updated. 
-
-You can do that by assigning the `$event` property an array of event names.
-
-```php
-class SomeCache extends Cached 
+class LongRunningTaskListeningForEvents extends Cached
 {
-    protected $event = [
-        ContentCreated::class,
-        ContentDeleted::class,
-        ContentUpdated::class,
+    protected $store = 'redis:unique-cache-key';
+
+    protected $events = [
+        TestEvent::class,
     ];
 
-    // You have access to an $event object here,
-    // but be careful! This event object may be any of
-    // the events listed above.
-    public function run($event)
+    public function run(TestEvent $event): string
     {
-        // do something...
+        return "I'm executing because of {$event->name}!";
     }
 }
 ```
 
-## "Static" caches
+## Caches can be updated periodically using the scheduler
 
-Static caches are a little different to the Reactive caches, these do not respond to events
-and must be updated manually or scheduled. Here is an example.
-
-### Scheduling with cron expressions
-
-You can use cron expressions to schedule your cache, a very basic example is shown below.
-This will run the cache every minute. 
+Permanent Caches can be updated using the scheduler (while also listening for events) by adding a `schedule` method or a `$expression` property with a cron syntax:
 
 ```php
+use Vormkracht10\PermanentCache\Cached;
 use Vormkracht10\PermanentCache\Scheduled;
 
-// ...
-
-class MinutesCache extends Cached implements Scheduled
+class LongRunningTaskExecutedPeriodicallyOrWhenAnEventHappens extends Cached implements Scheduled
 {
-    protected $store = 'redis:minutes';
+    protected $store = 'redis:unique-cache-key';
 
+    // Use cron expression
     protected $expression = '* * * * *';
-
-    public function run(): int
-    {
-        return $this->value() + 1;
-    }
-}
-```
-
-##### Warning: you should not use Cache::get() in the cache itself, use $this->value() instead, this is to prevent infinite recursion from happening.
-
-### Static caches with Laravel magic
-
-Now you can run `php artisan schedule:work` and every minute, the `minutes` count will be incremented.
-But, if you're anything like me, you don't really like writing raw cron expressions
-and much rather use Laravel's cool `Schedule` class. Well, you can.
-
-Let's take our previous snippet, and edit it a little to use Laravel's `Schedule` instead.
-
-```php
-class MinutesCache extends Cached implements Scheduled
-{
-    protected $store = 'redis:minutes';
-
-    public function run(): mixed
-    {
-        return $this->value() + 1;
-    }
-    
-    public static function schedule($callback)
-    {
-        $callback->everyMinute();
-    }
-}
-```
-
-### Manually updating static caches.
-
-Manually updating static caches is very simple. Just use the static `update` method.
-This will automatically queue your job, if it should be.
-
-```php
-MinutesCache::update();
-```
-
-## Queued caches
-
-You can also queue caches, for both the static and reactive caches.
-You can do this by simply implementing Laravel's `ShouldQueue` interface!
-
-```php
-class HelloCache extends Cached implements ShouldQueue
-{
-    protected $connection = 'redis';
-
-    protected $store = 'redis:hello';
 
     public function run(TestEvent $event): string
     {
-        return "Hallo, {$event->name}!";
+        return "I'm executing because of {$event->name} or a scheduled run!";
+    }
+
+    // Or use the `schedule` method using a callback
+    public static function schedule($callback)
+    {
+        return $callback->everyHour();
     }
 }
 ```
 
-You can specify a bunch of things, like the queue connection using the `$connection` property.
-You can basically configure you cache as a Laravel job. This works because the `Cached` class from which 
-we are inheriting is structured like a Laravel job.
+## Caches can be updated by dispatching on the queue
+
+Permanent Caches can be updated using a dispatch to the queue by implementing Laravel's `ShouldQueue` interface and (optionally) specifying a queue:
+
+```php
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Vormkracht10\PermanentCache\Cached;
+use Vormkracht10\PermanentCache\Scheduled;
+
+class LongRunningTaskExecutedPeriodicallyOrWhenAnEventHappensDispatchedOnTheQueue extends Cached implements Scheduled, ShouldQueue
+{
+    protected $store = 'redis:unique-cache-key';
+
+    public $queue = 'execute-on-this-queue';
+
+    public function run(TestEvent $event): string
+    {
+        return "I'm dispatching for execution on the queue because of {$event->name} or a scheduled run!";
+    }
+
+    public static function schedule($callback)
+    {
+        return $callback->everyHour();
+    }
+}
+```
+
+## Bonus: Cached Blade Components
+
+One super handy feature are "Cached Components", these are blade components that could contain a longer running task on which you don't want your users to wait for completing. So you execute the Blade component when needed in the background,
+using the scheduler, or queue, while optionally listening for events to happen that should cause the permanent cache to update.
+
+```php
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Vormkracht10\PermanentCache\CachedComponent;
+use Vormkracht10\PermanentCache\Scheduled;
+
+class UpdatesOnEventCache extends CachedComponent implements Scheduled, ShouldQueue
+{
+    protected $store = 'redis:unique-cache-key';
+
+    public $queue = 'execute-on-this-queue';
+
+    public function run(): string
+    {
+        return "I'm executing  because of {$event->name} or a scheduled run!";
+    }
+
+    public static function schedule($callback)
+    {
+        return $callback->everyHour();
+    }
+}
+```
+
+When loading your Blade component, it will always use cache instead of executing a long during task:
+
+```blade
+<x-long-during-task />
+```
+
+## Manually updating permanent caches
+
+Manually updating a permanent caches is very simple. Just use the static `update` method. This will automatically run or queue the execution of the task:
+
+```php
+LongTaskInPermanentCache::update(['parameter' => 'value']);
+```
 
 ##### [Read more on Jobs & Queues](https://laravel.com/docs/queues)
 
