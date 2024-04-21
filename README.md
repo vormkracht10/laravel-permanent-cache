@@ -170,15 +170,15 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Vormkracht10\PermanentCache\CachedComponent;
 use Vormkracht10\PermanentCache\Scheduled;
 
-class UpdatesOnEventCache extends CachedComponent implements Scheduled, ShouldQueue
+class HeavyComponent extends CachedComponent implements Scheduled, ShouldQueue
 {
     protected $store = 'redis:unique-cache-key';
 
     public $queue = 'execute-on-this-queue';
 
-    public function run(): string
+    public function render()
     {
-        return "I'm executing  because of {$event->name} or a scheduled run!";
+        return view('components.heavy-component', ['amount' => $amount]);
     }
 
     public static function schedule($callback)
