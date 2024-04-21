@@ -7,7 +7,9 @@
 ![Packagist PHP Version Support](https://img.shields.io/packagist/php-v/vormkracht10/laravel-permanent-cache)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/vormkracht10/laravel-permanent-cache.svg?style=flat-square)](https://packagist.org/packages/vormkracht10/laravel-permanent-cache)
 
-This package aims to provide functionality of using a **permanent** cache for heavy Eloquent models, database queries or other long running tasks in your Laravel app. The permanent cache updates itself in the background using a scheduled task or by listening to an event so no users are harmed waiting on a given request.
+This package aims to provide functionality of using a *permanent* cache for tasks using heavy Eloquent models, database queries or other long running tasks in your Laravel app. The permanent cache updates itself in the background using a scheduled task or by listening to an event so no users are harmed waiting on a given request.
+
+It use case is primarily to be used for heavy tasks that should return complex data or HTML for the front-end that does not need to be realtime but still regularly updated. Think about external API calls that take a few seconds to process or other 1+ second tasks.
 
 ## Installation
 
