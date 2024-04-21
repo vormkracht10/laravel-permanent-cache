@@ -45,6 +45,11 @@ trait CachesValue
      */
     protected $expression = null;
 
+    /** @var array<string, mixed> */
+    protected $parameters = [];
+
+    private bool $updating = false;
+
     /**
      * Update the cached value, this method expects an event if
      * the cacher is not static.
@@ -53,9 +58,9 @@ trait CachesValue
      */
     final public function handle($event = null): void
     {
-        CacheUpdatingEvent::dispatch($this);
+        $this->updating = true;
 
-        [$driver, $ident] = self::store();
+        [$driver, $ident] = $this->store($this->parameters);
 
         $value = is_subclass_of(static::class, CachedComponent::class)
             ? Blade::renderComponent($this)
@@ -68,17 +73,44 @@ trait CachesValue
         CacheUpdatedEvent::dispatch($this);
 
         Cache::driver($driver)->forever($ident, $value);
+
+        $this->updating = false;
+    }
+
+    final protected function isUpdating(): bool
+    {
+        return $this->updating;
+    }
+
+    /**
+     * Get the driver and identifier specified in the $store property.
+     *
+     * @return array{string, string}
+     */
+    private static function store($parameters): array
+    {
+        $class = static::class;
+
+        $store = (new ReflectionClass($class))
+            ->getProperty('store')
+            ->getDefaultValue();
+
+        $extension = http_build_query($parameters);
+
+        return self::parseCacheString($class, $store, '?'.$extension);
     }
 
     /**
      * Manually force a static cache to update.
      */
-    final public static function update(array $parameters = []): ?PendingDispatch
+    final public static function update($parameters = []): ?PendingDispatch
     {
         $instance = app()->make(static::class, $parameters);
 
-        if (! is_a(static::class, ShouldQueue::class, true)) {
-            $instance->handle($parameters);
+        $instance->parameters = $parameters;
+
+        if (! is_subclass_of(static::class, ShouldQueue::class)) {
+            $instance->handle();
 
             return null;
         }
@@ -93,14 +125,19 @@ trait CachesValue
      *                        when it doesn't hold the value yet.
      * @return V|mixed|null
      */
-    final public static function get(array $parameters = [], $default = null, bool $update = false): mixed
+    final public static function get($default = null, bool $update = false): mixed
     {
-        [$driver, $ident] = self::store();
+        if (is_subclass_of(static::class, CachedComponent::class)) {
+            $parameters = $default;
+            $default = null;
+        }
+
+        [$driver, $ident] = self::store($parameters ?? []);
 
         $cache = Cache::driver($driver);
 
         if ($update && ! $cache->has($ident)) {
-            static::update($parameters)?->onConnection('sync');
+            static::update($parameters ?? [])?->onConnection('sync');
         }
 
         return $cache->get($ident, $default);
@@ -117,7 +154,11 @@ trait CachesValue
      */
     final protected function value($default = null): mixed
     {
-        [$driver, $ident] = self::store();
+        if (is_subclass_of(static::class, CachedComponent::class) && ! is_null($default)) {
+            throw new \Exception('A cached component can not have a default return value');
+        }
+
+        [$driver, $ident] = $this->store($this->parameters);
 
         return Cache::driver($driver)->get(
             $ident, $default,
@@ -174,7 +215,7 @@ trait CachesValue
     /**
      * @return array{string, string}
      */
-    private static function parseCacheString($class, ?string $store): array
+    private static function parseCacheString($class, ?string $store, ?string $extension = null): array
     {
         if ($store && strpos($store, ':')) {
             $cacheDriver = substr($store, 0, strpos($store, ':'));
@@ -188,22 +229,6 @@ trait CachesValue
 
         $cacheKey = preg_replace('/[^A-Za-z0-9]+/', '_', $cacheKey);
 
-        return [$cacheDriver, $cacheKey];
-    }
-
-    /**
-     * Get the driver and identifier specified in the $store property.
-     *
-     * @return array{string, string}
-     */
-    private static function store(): array
-    {
-        $class = static::class;
-
-        $store = (new ReflectionClass($class))
-            ->getProperty('store')
-            ->getDefaultValue();
-
-        return self::parseCacheString($class, $store);
+        return [$cacheDriver, $cacheKey.$extension];
     }
 }
