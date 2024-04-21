@@ -113,10 +113,14 @@ class LongRunningTaskExecutedPeriodicallyOrWhenAnEventHappens extends Cached imp
 {
     protected $store = 'redis:unique-cache-key';
 
+    protected $events = [
+        TestEvent::class,
+    ];
+
     // Use cron expression
     protected $expression = '* * * * *';
 
-    public function run(TestEvent $event): string
+    public function run(): string
     {
         return "I'm executing because of {$event->name} or a scheduled run!";
     }
