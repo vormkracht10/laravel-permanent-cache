@@ -186,7 +186,7 @@ class HeavyComponent extends CachedComponent implements Scheduled, ShouldQueue
 
     public function render()
     {
-        return view('components.heavy-component', ['amount' => $amount]);
+        return view('components.heavy-component');
     }
 
     public static function schedule($callback)
