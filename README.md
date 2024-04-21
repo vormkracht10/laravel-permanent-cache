@@ -30,7 +30,7 @@ You can register caches in multiple ways:
 ```php
 use \Vormkracht10\PermanentCache\Facades\PermanentCache;
 
-# When you don't need parameters, you can use direct parameters or an array:
+# When you don't need parameters per class, you can use direct parameters or an array:
 
 # Without array
 PermanentCache::caches(
