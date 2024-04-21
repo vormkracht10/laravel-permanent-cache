@@ -31,13 +31,13 @@ use \Vormkracht10\PermanentCache\Facades\PermanentCache;
 
 # When you don't need parameters per class, you can use direct parameters or an array:
 
-# Without array
+# Without an array
 PermanentCache::caches(
     LongRunningTask::class,
     LongerRunningTask::class,
 );
 
-# As an array
+# Passing an array
 $caches = [
     LongRunningTask::class,
     LongerRunningTask::class,
