@@ -25,7 +25,7 @@ class PermanentCache
 
             $cacher = $this->app->make($cacher, $parameters);
 
-            if([] !== $events = $cacher::getListenerEvents()) {
+            if ([] !== $events = $cacher::getListenerEvents()) {
                 Event::listen($events, fn () => $cacher->update($parameters));
             }
 

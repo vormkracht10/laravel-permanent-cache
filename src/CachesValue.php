@@ -239,7 +239,7 @@ trait CachesValue
         $cacheDriver ??= config('cache.default');
         $cacheKey ??= preg_replace('/[^A-Za-z0-9]+/', '_', strtolower(snake_case($class)));
 
-        if($parameters) {
+        if ($parameters) {
             $cacheKey .= ':'.md5(json_encode($parameters));
         }
 
