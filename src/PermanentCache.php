@@ -15,21 +15,39 @@ class PermanentCache
     /**
      * @param  array<class-string<Cached|CachedComponent>, int>  $cachers
      */
-    public function caches(array $cachers): self
+    public function caches($registeredCaches): self
     {
-        foreach ($cachers as $cacher => $parameters) {
-            if (is_int($cacher)) {
-                $cacher = $parameters;
-                $parameters = [];
+        $registeredCaches = func_get_args();
+
+        if(! is_array(array_key_first($registeredCaches))) {
+            $registeredCaches = [$registeredCaches];
+        }
+
+        foreach($registeredCaches as $registeredCache) {
+            foreach ($registeredCache as $cacher => $parameters) {
+                if (is_int($cacher)) {
+                    if(is_string($parameters)) {
+                        $cacher = $parameters;
+                        $parameters = [];
+                    }
+                    else if(is_string(array_key_first($parameters))) {
+                        $cacher = array_key_first($parameters);
+                        $parameters = array_shift($parameters);
+                    }
+                    else {
+                        $cacher = array_first($parameters);
+                        $parameters = [];
+                    }
+                }
+
+                $cacher = $this->app->make($cacher, $parameters);
+
+                if ([] !== $events = $cacher::getListenerEvents()) {
+                    Event::listen($events, fn() => $cacher->update($parameters));
+                }
+
+                $this->cachers[$cacher] = $events;
             }
-
-            $cacher = $this->app->make($cacher, $parameters);
-
-            if ([] !== $events = $cacher::getListenerEvents()) {
-                Event::listen($events, fn () => $cacher->update($parameters));
-            }
-
-            $this->cachers[$cacher] = $events;
         }
 
         return $this;

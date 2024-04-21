@@ -117,13 +117,13 @@ trait CachesValue
     {
         $instance = app()->make(static::class, $parameters);
 
-        $instance->parameters = $parameters;
-
         if (
             app()->runningInConsole() &&
             is_subclass_of(static::class, ShouldQueue::class)
         ) {
-            return dispatch($instance);
+            dispatch($instance);
+
+            return null;
         }
 
         return $instance->handle();
@@ -239,8 +239,8 @@ trait CachesValue
         $cacheDriver ??= config('cache.default');
         $cacheKey ??= preg_replace('/[^A-Za-z0-9]+/', '_', strtolower(snake_case($class)));
 
-        if ($parameters) {
-            $cacheKey .= ':'.md5(json_encode($parameters));
+        if($parameters) {
+            $cacheKey .= ':'.http_build_query($parameters);
         }
 
         return [$cacheDriver, $cacheKey];
