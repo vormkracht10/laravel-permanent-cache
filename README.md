@@ -117,7 +117,7 @@ class LongRunningTaskExecutedPeriodicallyOrWhenAnEventHappens extends Cached imp
     ];
 
     // Use cron expression
-    protected $expression = '* * * * *';
+    protected $expression = '* * * * *'; // run every minute
 
     public function run(): string
     {
