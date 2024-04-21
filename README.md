@@ -162,7 +162,7 @@ class LongRunningTaskExecutedPeriodicallyOrWhenAnEventHappensDispatchedOnTheQueu
 
 ## Bonus: Cached Blade Components
 
-One super handy feature are "Cached Components", these are blade components that could contain a longer running task on which you don't want your users to wait for completing. So you execute the Blade component when needed in the background,
+One super handy feature are "Cached Components", these are Blade Components that could contain a longer running task on which you don't want your users to wait for completing. So you execute the Blade component when needed in the background,
 using the scheduler, or queue, while optionally listening for events to happen that should cause the permanent cache to update.
 
 ```php
