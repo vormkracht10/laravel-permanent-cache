@@ -52,7 +52,8 @@ PermanentCache::caches([
     LongerRunningTask::class => ['type' => 'longer'],
 ]);
 
-# As an multi-dimensional array when you need to use the same class multiple times but with different parameters
+# As an multi-dimensional array when you need to use the
+# same class multiple times but with different parameters
 PermanentCache::caches(
     [LongRunningTask::class => ['type' => 'long']],
     [LongRunningTask::class => ['type' => 'longer']],
