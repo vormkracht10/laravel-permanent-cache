@@ -59,9 +59,9 @@ trait CachesValue
     {
         $this->isUpdating = true;
 
-        PermanentCacheUpdating::dispatch($this);
-
         [$driver, $ident] = $this->store($this->parameters);
+
+        PermanentCacheUpdating::dispatch($this);
 
         $value = is_subclass_of(static::class, CachedComponent::class)
             ? Blade::renderComponent($this)
