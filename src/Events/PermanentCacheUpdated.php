@@ -6,7 +6,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Vormkracht10\PermanentCache\Cached;
 use Vormkracht10\PermanentCache\CachedComponent;
 
-class CacheUpdatingEvent
+class PermanentCacheUpdated
 {
     use Dispatchable;
 
