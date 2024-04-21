@@ -15,12 +15,6 @@ abstract class CachedComponent extends Component
     /** {@inheritdoc} */
     public function resolveView(): \Illuminate\Contracts\View\View|HtmlString|\Illuminate\Contracts\Support\Htmlable|\Closure|string
     {
-        $this->parameters = collect((new \ReflectionClass(static::class))
-            ->getProperties(\ReflectionProperty::IS_PUBLIC))
-            ->filter(fn (\ReflectionProperty $p) => $p->class === static::class)
-            ->mapWithKeys(fn (\ReflectionProperty $p) => [$p->name => $p->getValue($this)])
-            ->toArray();
-
         if (
             $this->isUpdating ||
             $this->shouldBeUpdating()
@@ -28,7 +22,7 @@ abstract class CachedComponent extends Component
             return parent::resolveView();
         }
 
-        if (null !== $cachedValue = $this->get($this->parameters)) {
+        if (null !== $cachedValue = $this->get($this->getParameters())) {
             return new HtmlString((string) $cachedValue);
         }
     }

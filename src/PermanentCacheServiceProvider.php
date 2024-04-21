@@ -22,7 +22,7 @@ class PermanentCacheServiceProvider extends PackageServiceProvider
     {
         $this->callAfterResolving(Schedule::class, fn (Schedule $schedule) => collect(Facades\PermanentCache::configuredCaches())
             ->filter(fn ($cacher) => is_a($cacher, Scheduled::class))
-            ->each(fn (Scheduled $instance) => $instance->schedule($schedule->job($instance)))
+            ->each(fn ($cacher) => $cacher->schedule($schedule->job($cacher)))
         );
     }
 }

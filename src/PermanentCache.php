@@ -8,15 +8,12 @@ use SplObjectStorage;
 
 class PermanentCache
 {
-    protected SplObjectStorage $cachers;
-
-    public function __construct(protected Application $app)
+    public function __construct(protected SplObjectStorage $cachers, protected Application $app)
     {
-        $this->cachers = new SplObjectStorage;
     }
 
     /**
-     * @param  array<int, class-string<Cached|CachedComponent>>  $cachers
+     * @param  array<class-string<Cached|CachedComponent>, int>  $cachers
      */
     public function caches(array $cachers): self
     {
@@ -28,9 +25,9 @@ class PermanentCache
 
             $cacher = $this->app->make($cacher, $parameters);
 
-            $events = $cacher::getListenerEvents();
-
-            Event::listen($events, $cacher);
+            if([] !== $events = $cacher::getListenerEvents()) {
+                Event::listen($events, fn () => $cacher->update($parameters));
+            }
 
             $this->cachers[$cacher] = $events;
         }

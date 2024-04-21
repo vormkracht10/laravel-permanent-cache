@@ -28,13 +28,13 @@ trait CachesValue
     protected $store = null;
 
     /**
-     * The event that this cacher will listen for, this is optional
+     * The events that this cacher will listen for, this is optional
      * as it can also be inferred by type hinting an argument
      * in the run method.
      *
      * @var class-string|array<int, class-string>|null
      */
-    protected $event = null;
+    protected $events = [];
 
     /**
      * The cron expression that will be used if the `schedule`
@@ -59,7 +59,7 @@ trait CachesValue
     {
         $this->isUpdating = true;
 
-        [$driver, $ident] = $this->store($this->parameters);
+        [$driver, $cacheKey] = $this->store($this->getParameters());
 
         PermanentCacheUpdating::dispatch($this);
 
@@ -75,9 +75,18 @@ trait CachesValue
 
         PermanentCacheUpdated::dispatch($this);
 
-        Cache::driver($driver)->forever($ident, $value);
+        Cache::driver($driver)->forever($cacheKey, $value);
 
         return $value;
+    }
+
+    public function getParameters()
+    {
+        return collect((new \ReflectionClass(static::class))
+            ->getProperties(\ReflectionProperty::IS_PUBLIC))
+            ->filter(fn (\ReflectionProperty $p) => $p->class === static::class)
+            ->mapWithKeys(fn (\ReflectionProperty $p) => [$p->name => $p->getValue($this)])
+            ->toArray();
     }
 
     /**
@@ -93,9 +102,7 @@ trait CachesValue
             ->getProperty('store')
             ->getDefaultValue();
 
-        $extension = http_build_query($parameters);
-
-        return self::parseCacheString($class, $store, '?'.$extension);
+        return self::parseCacheString($class, $store, $parameters);
     }
 
     public function shouldBeUpdating(): bool
@@ -136,18 +143,18 @@ trait CachesValue
             $default = null;
         }
 
-        [$driver, $ident] = self::store($parameters ?? []);
+        [$driver, $cacheKey] = self::store($parameters ?? []);
 
         $cache = Cache::driver($driver);
 
         if (
             $update ||
-            ! $cache->has($ident)
+            ! $cache->has($cacheKey)
         ) {
             return static::update($parameters ?? []);
         }
 
-        return $cache->get($ident, $default);
+        return $cache->get($cacheKey, $default);
     }
 
     /**
@@ -165,10 +172,10 @@ trait CachesValue
             throw new \Exception("A cached component can't have a default return value");
         }
 
-        [$driver, $ident] = $this->store($this->parameters);
+        [$driver, $cacheKey] = $this->store($this->getParameters());
 
         return Cache::driver($driver)->get(
-            $ident, $default,
+            $cacheKey, $default,
         );
     }
 
@@ -200,18 +207,16 @@ trait CachesValue
     {
         $class = static::class;
 
-        return once(function () use ($class) {
-            $reflection = new ReflectionClass($class);
+        $reflection = new ReflectionClass($class);
 
-            $concrete = Arr::wrap($reflection->getProperty('event')->getDefaultValue());
+        $concrete = Arr::wrap($reflection->getProperty('events')->getDefaultValue());
 
-            /** @phpstan-ignore-next-line */
-            return $concrete ?: Arr::wrap(($reflection
-                ->getMethod(self::getUpdateMethodString())
-                ->getParameters()[0] ?? null)
-                ?->getType()
-                ?->getName());
-        });
+        /** @phpstan-ignore-next-line */
+        return $concrete ?: Arr::wrap(($reflection
+            ->getMethod(self::getUpdateMethodString())
+            ->getParameters()[0] ?? null)
+            ?->getType()
+            ?->getName());
     }
 
     private static function getUpdateMethodString(): string
@@ -222,7 +227,7 @@ trait CachesValue
     /**
      * @return array{string, string}
      */
-    private static function parseCacheString($class, ?string $store, ?string $extension = null): array
+    private static function parseCacheString($class, ?string $store, ?array $parameters = []): array
     {
         if ($store && strpos($store, ':')) {
             $cacheDriver = substr($store, 0, strpos($store, ':'));
@@ -232,10 +237,12 @@ trait CachesValue
         }
 
         $cacheDriver ??= config('cache.default');
-        $cacheKey ??= str_replace('\\', '_', strtolower($class));
+        $cacheKey ??= preg_replace('/[^A-Za-z0-9]+/', '_', strtolower(snake_case($class)));
 
-        $cacheKey = preg_replace('/[^A-Za-z0-9]+/', '_', $cacheKey);
+        if($parameters) {
+            $cacheKey .= ':'.md5(json_encode($parameters));
+        }
 
-        return [$cacheDriver, $cacheKey.$extension];
+        return [$cacheDriver, $cacheKey];
     }
 }
