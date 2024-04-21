@@ -146,6 +146,10 @@ class LongRunningTaskExecutedPeriodicallyOrWhenAnEventHappensDispatchedOnTheQueu
 {
     protected $store = 'redis:unique-cache-key';
 
+    protected $events = [
+        TestEvent::class,
+    ];
+
     public $queue = 'execute-on-this-queue';
 
     public function run(TestEvent $event): string
@@ -175,6 +179,10 @@ class HeavyComponent extends CachedComponent implements Scheduled, ShouldQueue
     protected $store = 'redis:unique-cache-key';
 
     public $queue = 'execute-on-this-queue';
+
+    protected $events = [
+        TestEvent::class,
+    ];
 
     public function render()
     {
