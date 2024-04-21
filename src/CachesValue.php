@@ -10,6 +10,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 use ReflectionClass;
+use Vormkracht10\PermanentCache\Events\CacheUpdatedEvent;
+use Vormkracht10\PermanentCache\Events\CacheUpdatingEvent;
 
 /**
  * @template V
@@ -67,6 +69,8 @@ trait CachesValue
         if (is_null($value)) {
             return;
         }
+
+        CacheUpdatedEvent::dispatch($this);
 
         Cache::driver($driver)->forever($ident, $value);
 
