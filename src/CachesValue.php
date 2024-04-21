@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 use ReflectionClass;
 use Vormkracht10\PermanentCache\Events\CacheUpdatedEvent;
-use Vormkracht10\PermanentCache\Events\CacheUpdatingEvent;
 
 /**
  * @template V
