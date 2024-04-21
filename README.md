@@ -8,7 +8,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/vormkracht10/laravel-permanent-cache.svg?style=flat-square)](https://packagist.org/packages/vormkracht10/laravel-permanent-cache)
 
 This package aims to provide functionality of using permanent cache for heavy Eloquent models,
-database queries or long duration tasks in Laravel. The permanent cache updates itself
+database queries or other long running tasks in Laravel. The permanent cache updates itself
 in the background using a scheduled task or by reacting to an event
 so no visitors are harmed waiting long on a given request.
 
