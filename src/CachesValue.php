@@ -71,11 +71,11 @@ trait CachesValue
             return null;
         }
 
-        $this->isUpdating = false;
+        Cache::driver($driver)->forever($cacheKey, $value);
 
         PermanentCacheUpdated::dispatch($this);
 
-        Cache::driver($driver)->forever($cacheKey, $value);
+        $this->isUpdating = false;
 
         return $value;
     }
