@@ -53,7 +53,7 @@ trait CachesValue
      * Update the cached value, this method expects an event if
      * the cacher is not static.
      *
-     * @internal You shouldn't call this yourself.
+     * @internal You shouldn't call this yourself, use the `CachesValue::update` method instead.
      */
     final public function handle($event = null): mixed
     {
