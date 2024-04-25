@@ -127,6 +127,7 @@ trait CachesValue
 
         if (! is_subclass_of(static::class, ShouldQueue::class)) {
             $instance->handle();
+
             return null;
         }
 

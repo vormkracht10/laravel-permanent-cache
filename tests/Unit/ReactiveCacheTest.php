@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use Vormkracht10\PermanentCache\Cached;
 use Vormkracht10\PermanentCache\Events\PermanentCacheUpdated;
 use Vormkracht10\PermanentCache\Events\PermanentCacheUpdating;
@@ -12,9 +12,12 @@ beforeEach(function () {
     (fn () => $this->cachers = new \SplObjectStorage)->call(app(\Vormkracht10\PermanentCache\PermanentCache::class));
 });
 
-class TestEvent {}
+class TestEvent
+{
+}
 
-class TestCache extends Cached {
+class TestCache extends Cached
+{
     protected $store = 'array:test';
 
     public function run(TestEvent $_): mixed
@@ -40,7 +43,8 @@ test('a cache will get updated when an event it\'s listening to gets fired', fun
     global $pass;
     $pass = false;
 
-    class T extends Cached {
+    class T extends Cached
+    {
         public function run(TestEvent $_)
         {
             global $pass;
