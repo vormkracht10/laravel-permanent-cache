@@ -60,9 +60,12 @@ PermanentCache::caches(
 
 ## Definition of a Permanent Cache
 
-A Permanent Cache could be a task that runs longer than you'd actually want and not want to bother your users with. That's why you need to run it in the background, updating periodically using the scheduler or when events happen and/or using help of Laravel's queue system.
+A Permanent Cache could be a task that runs longer than you'd want your users to wait for. 
+That's why you need to run it in the background, updating periodically using the scheduler
+or when events happen and/or using help of Laravel's queue system.
 
-You can define the cache store and key using a `$store` property on the class, following the definition: `store:key`, for example: `redis:a-unique-cache-key`:
+You can define the cache store and key using a `$store` property on the class, following 
+the definition: `cache-driver:key`, for example: `redis:a-unique-cache-key`:
 
 ```php
 use Vormkracht10\PermanentCache\Cached;
@@ -80,7 +83,25 @@ class LongRunningTask extends Cached
 
 ## Caches can listen for events
 
-Permanent Caches can be updated by listening to events using an array on the `$events` property:
+If you only want to listen for a single event you can type hint the event in the `run` method:
+
+```php
+use Vormkracht10\PermanentCache\Cached;
+
+class LongRunningTaskListeningForEvents extends Cached
+{
+    protected $store = 'redis:unique-cache-key';
+
+    public function run(TestEvent $event): string
+    {
+        return "I'm executing because of {$event->name}!";
+    }
+}
+```
+
+### Listening for multiple events
+
+Permanent Caches can be updated by listening to *multiple* events using an array on the `$events` property:
 
 ```php
 use Vormkracht10\PermanentCache\Cached;
@@ -91,9 +112,11 @@ class LongRunningTaskListeningForEvents extends Cached
 
     protected $events = [
         TestEvent::class,
+        OtherEvent::class,
     ];
-
-    public function run(TestEvent $event): string
+    
+    /** @param TestEvent|OtherEvent $event */
+    public function run($event): string
     {
         return "I'm executing because of {$event->name}!";
     }
@@ -102,7 +125,10 @@ class LongRunningTaskListeningForEvents extends Cached
 
 ## Caches can be updated periodically using the scheduler
 
-Permanent Caches can be updated using the scheduler (while also listening for events) by adding a `schedule` method or a `$expression` property with a cron syntax:
+Permanent Caches can be updated using the scheduler (while also listening for events) by adding a `schedule` method or a `$expression` property with a cron string.
+
+Note that if you decide to listen to events *and* schedule your cache, you shouldn't try to
+accept an `$event` parameter in the `run` method, because when the schedule runs, this won't be given to you.
 
 ```php
 use Vormkracht10\PermanentCache\Cached;
@@ -141,24 +167,15 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Vormkracht10\PermanentCache\Cached;
 use Vormkracht10\PermanentCache\Scheduled;
 
-class LongRunningTaskExecutedPeriodicallyOrWhenAnEventHappensDispatchedOnTheQueue extends Cached implements Scheduled, ShouldQueue
+class LongRunningTaskExecutedPeriodicallyOrWhenAnEventHappensDispatchedOnTheQueue extends Cached implements ShouldQueue
 {
     protected $store = 'redis:unique-cache-key';
-
-    protected $events = [
-        TestEvent::class,
-    ];
 
     public $queue = 'execute-on-this-queue';
 
     public function run(TestEvent $event): string
     {
-        return "I'm dispatching for execution on the queue because of {$event->name} or a scheduled run!";
-    }
-
-    public static function schedule($callback)
-    {
-        return $callback->everyHour();
+        return "I'm dispatching for execution on the queue because of {$event->name}!";
     }
 }
 ```
@@ -176,8 +193,6 @@ use Vormkracht10\PermanentCache\Scheduled;
 class HeavyComponent extends CachedComponent implements Scheduled, ShouldQueue
 {
     protected $store = 'redis:unique-cache-key';
-
-    public $queue = 'execute-on-this-queue';
 
     protected $events = [
         TestEvent::class,
@@ -203,7 +218,8 @@ When loading your Blade component, it will always use cache instead of executing
 
 ## Manually updating permanent caches
 
-Manually updating a permanent caches is very simple. Just use the static `update` method. This will automatically run or queue the execution of the task:
+Manually updating a permanent cache is very simple. Just use the static `update` method. 
+This will automatically run or queue the execution of the task:
 
 ```php
 LongTaskInPermanentCache::update(['parameter' => 'value']);
@@ -217,7 +233,7 @@ These events get dispatched when a Permanent Cache gets updated:
 # Before updating the cache
 use Vormkracht10\PermanentCache\Events\PermanentCacheUpdating;
 
-# When the cache is updated
+# After the cache has been updated
 use Vormkracht10\PermanentCache\Events\PermanentCacheUpdated;
 ```
 
@@ -226,7 +242,7 @@ use Vormkracht10\PermanentCache\Events\PermanentCacheUpdated;
 ## Credits
 
 -   [Mark van Eijk](https://github.com/vormkracht10)
--   [David den Haan](https://github.com/daviddenhaan)
+-   [David den Haan](https://github.com/david-d-h)
 -   [All Contributors](../../contributors)
 
 ## License
