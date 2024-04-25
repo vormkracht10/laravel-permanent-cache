@@ -5,6 +5,7 @@ namespace Vormkracht10\PermanentCache;
 use Illuminate\Bus\Queueable;
 use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
@@ -44,10 +45,19 @@ trait CachesValue
      */
     protected $expression = null;
 
-    /** @var array<string, mixed> */
+    /**
+     * The parameters this cache should be stored with.
+     *
+     * @var array<string, mixed>
+     */
     protected $parameters = [];
 
-    private bool $isUpdating = false;
+    /**
+     * Indicates whether this cache is currently updating or not.
+     *
+     * @var bool
+     */
+    private $isUpdating = false;
 
     /**
      * Update the cached value, this method expects an event if
@@ -55,7 +65,7 @@ trait CachesValue
      *
      * @internal You shouldn't call this yourself, use the `CachesValue::update` method instead.
      */
-    final public function handle($event = null): mixed
+    final public function handle($event = null): void
     {
         $this->isUpdating = true;
 
@@ -68,7 +78,7 @@ trait CachesValue
             : $this->run($event);
 
         if (is_null($value)) {
-            return null;
+            return;
         }
 
         Cache::driver($driver)->forever($cacheKey, $value);
@@ -76,8 +86,6 @@ trait CachesValue
         PermanentCacheUpdated::dispatch($this);
 
         $this->isUpdating = false;
-
-        return $value;
     }
 
     public function getParameters()
@@ -113,20 +121,16 @@ trait CachesValue
     /**
      * Manually force a static cache to update.
      */
-    final public static function update($parameters = []): mixed
+    final public static function update($parameters = []): ?PendingDispatch
     {
         $instance = app()->make(static::class, $parameters);
 
-        if (
-            app()->runningInConsole() &&
-            is_subclass_of(static::class, ShouldQueue::class)
-        ) {
-            dispatch($instance);
-
+        if (! is_subclass_of(static::class, ShouldQueue::class)) {
+            $instance->handle();
             return null;
         }
 
-        return $instance->handle();
+        return dispatch($instance);
     }
 
     /**
@@ -147,14 +151,25 @@ trait CachesValue
 
         $cache = Cache::driver($driver);
 
-        if (
-            $update ||
-            ! $cache->has($cacheKey)
-        ) {
-            return static::update($parameters ?? []);
+        if ($update && ! $cache->has($cacheKey)) {
+            static::update($parameters ?? [])->onConnection('sync');
         }
 
         return $cache->get($cacheKey, $default);
+    }
+
+    /**
+     * Force an update of the cache and return the updated value.
+     *
+     * @return V|mixed
+     */
+    final public static function updateAndGet($parameters = []): mixed
+    {
+        [$driver, $cacheKey] = self::store($parameters);
+
+        static::update($parameters)->onConnection('sync');
+
+        return Cache::driver($driver)->get($cacheKey);
     }
 
     /**
@@ -237,7 +252,7 @@ trait CachesValue
         }
 
         $cacheDriver ??= config('cache.default');
-        $cacheKey ??= preg_replace('/[^A-Za-z0-9]+/', '_', strtolower(snake_case($class)));
+        $cacheKey ??= preg_replace('/[^A-Za-z0-9]+/', '_', strtolower(\Str::snake($class)));
 
         if ($parameters) {
             $cacheKey .= ':'.http_build_query($parameters);

@@ -8,8 +8,11 @@ use SplObjectStorage;
 
 class PermanentCache
 {
-    public function __construct(protected SplObjectStorage $cachers, protected Application $app)
-    {
+    public function __construct(
+        protected SplObjectStorage $cachers,
+        protected Application $app,
+    ) {
+        //
     }
 
     /**
@@ -33,18 +36,18 @@ class PermanentCache
                         $cacher = array_key_first($parameters);
                         $parameters = array_shift($parameters);
                     } else {
-                        $cacher = array_first($parameters);
+                        $cacher = \Arr::first($parameters);
                         $parameters = [];
                     }
                 }
 
-                $cacher = $this->app->make($cacher, $parameters);
+                $cacherInstance = $this->app->make($cacher, $parameters);
 
-                if ([] !== $events = $cacher::getListenerEvents()) {
-                    Event::listen($events, fn () => $cacher->update($parameters));
+                if ([] !== $events = $cacherInstance->getListenerEvents()) {
+                    Event::listen($events, fn ($event) => $cacherInstance->handle($event));
                 }
 
-                $this->cachers[$cacher] = $events;
+                $this->cachers[$cacherInstance] = $events;
             }
         }
 
