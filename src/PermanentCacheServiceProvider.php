@@ -10,7 +10,8 @@ class PermanentCacheServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
-        $package->name('laravel-permanent-cache');
+        $package->name('laravel-permanent-cache')
+            ->hasConfigFile();
     }
 
     public function registeringPackage()

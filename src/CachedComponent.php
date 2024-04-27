@@ -19,11 +19,33 @@ abstract class CachedComponent extends Component
             $this->isUpdating ||
             $this->shouldBeUpdating()
         ) {
-            return parent::resolveView();
+            return $this->setMarkers(parent::resolveView());
         }
 
         if (null !== $cachedValue = $this->get($this->getParameters())) {
-            return new HtmlString((string) $cachedValue);
+            return new HtmlString($this->setMarkers((string) $cachedValue));
         }
+    }
+
+    public function getMarker(): string
+    {
+        [$cacheDriver, $cacheKey] = $this::store($this->getParameters());
+
+        $marker = $cacheDriver.':'.$cacheKey;
+
+        if(config('permanent-cache.components.markers.hash')) {
+            $marker = md5($marker);
+        }
+
+        return '<!--##########'.$marker.'##########-->';
+    }
+
+    public function setMarkers($value): string
+    {
+        if(! config('permanent-cache.components.markers.enabled')) {
+            return $value;
+        }
+
+        return $this->getMarker().$value.$this->getMarker();
     }
 }
