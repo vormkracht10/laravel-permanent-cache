@@ -25,7 +25,7 @@ abstract class CachedComponent extends Component
         }
 
         if (null !== $cachedValue = $this->get($this->getParameters())) {
-            return (new HtmlString($this->renderOutput((string) $cachedValue)));
+            return new HtmlString($this->renderOutput((string) $cachedValue));
         }
     }
 
