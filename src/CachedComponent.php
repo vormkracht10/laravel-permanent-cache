@@ -6,14 +6,14 @@ use Illuminate\Support\HtmlString;
 use Illuminate\View\Component;
 
 /**
- * @method string render()
+ * @method mixed get(array $parameters = [], bool $update = false)
  */
 abstract class CachedComponent extends Component
 {
     use CachesValue;
 
     /** {@inheritdoc} */
-    public function resolveView(): \Illuminate\Contracts\View\View|HtmlString|\Illuminate\Contracts\Support\Htmlable|\Closure|string
+    public function resolveView()
     {
         if (
             $this->isUpdating ||
