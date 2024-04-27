@@ -8,7 +8,7 @@ return [
         // Which is useful for debugging and testing, but also for updating
         // the cached value inside another cache when using nested caches
         'markers' => [
-            'enabled' => env('PERMANENT_CACHE_MARKERS_ENABLED', true),
+            'enabled' => env('PERMANENT_CACHE_MARKERS_ENABLED', false),
             'hash' => env('PERMANENT_CACHE_MARKERS_HASH', false),
         ],
     ],
