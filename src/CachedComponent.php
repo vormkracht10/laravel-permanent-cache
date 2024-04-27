@@ -33,7 +33,7 @@ abstract class CachedComponent extends Component
 
         $marker = $cacheDriver.':'.$cacheKey;
 
-        if(config('permanent-cache.components.markers.hash')) {
+        if (config('permanent-cache.components.markers.hash')) {
             $marker = md5($marker);
         }
 
@@ -42,7 +42,7 @@ abstract class CachedComponent extends Component
 
     public function setMarkers($value): string
     {
-        if(! config('permanent-cache.components.markers.enabled')) {
+        if (! config('permanent-cache.components.markers.enabled')) {
             return $value;
         }
 
