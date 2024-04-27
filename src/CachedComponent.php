@@ -19,11 +19,11 @@ abstract class CachedComponent extends Component
             $this->isUpdating ||
             $this->shouldBeUpdating()
         ) {
-            return $this->setMarkers(parent::resolveView());
+            return $this->renderOutput(parent::resolveView());
         }
 
         if (null !== $cachedValue = $this->get($this->getParameters())) {
-            return new HtmlString($this->setMarkers((string) $cachedValue));
+            return new HtmlString($this->renderOutput((string) $cachedValue));
         }
     }
 
@@ -40,7 +40,7 @@ abstract class CachedComponent extends Component
         return '<!--##########'.$marker.'##########-->';
     }
 
-    public function setMarkers($value): string
+    public function renderOutput($value): string
     {
         if (! config('permanent-cache.components.markers.enabled')) {
             return $value;
