@@ -44,10 +44,10 @@ abstract class CachedComponent extends Component
 
     public function renderOutput($value): HtmlString
     {
-        if (! config('permanent-cache.components.markers.enabled')) {
-            return new HtmlString($value);
+        if (config('permanent-cache.components.markers.enabled')) {
+            $value = $this->getMarker().$value.$this->getMarker();
         }
 
-        return new HtmlString($this->getMarker().$value.$this->getMarker());
+        return new HtmlString($value);
     }
 }
