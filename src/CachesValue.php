@@ -74,7 +74,7 @@ trait CachesValue
         PermanentCacheUpdating::dispatch($this);
 
         $value = is_subclass_of(static::class, CachedComponent::class)
-            ? Blade::renderComponent($this)
+            ? (string) Blade::renderComponent($this)
             : $this->run($event);
 
         if (is_null($value)) {
@@ -152,8 +152,11 @@ trait CachesValue
 
         $cache = Cache::driver($driver);
 
-        if ($update && ! $cache->has($cacheKey)) {
-            static::update($parameters ?? [])->onConnection('sync');
+        if (
+            $update ||
+            ! $cache->has($cacheKey)
+        ) {
+            static::update($parameters ?? [])?->onConnection('sync');
         }
 
         return $cache->get($cacheKey, $default);
