@@ -10,13 +10,8 @@ beforeEach(function () {
 });
 
 test('test cached component is cached second time', function () {
-    $time = microtime(true);
+    $firstRunOutput = Blade::renderComponent(new CachedComponent);
+    $secondRunOutput = Blade::renderComponent(new CachedComponent);
 
-    $firstOutput = Blade::renderComponent(new CachedComponent);
-
-    $time = microtime(true);
-
-    $secondOutput = Blade::renderComponent(new CachedComponent);
-
-    $this->assertEquals($firstOutput, $secondOutput);
+    $this->assertEquals($firstRunOutput, $secondRunOutput);
 });
