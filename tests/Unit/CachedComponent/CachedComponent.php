@@ -6,12 +6,10 @@ class CachedComponent extends \Vormkracht10\PermanentCache\CachedComponent
 
     public function render(): string
     {
-        sleep(3);
+        sleep(2);
 
         return <<<'HTML'
-            <div class="alert alert-danger">
-                This is a cached component!
-            </div>
+            <div>This is a {{ $value ?? 'cached' }} component!</div>
         HTML;
     }
 }

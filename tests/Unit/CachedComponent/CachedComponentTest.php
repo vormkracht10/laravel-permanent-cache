@@ -14,11 +14,11 @@ test('test cached component is cached second time', function () {
 
     Blade::renderComponent(new CachedComponent);
 
-    $this->assertGreaterThanOrEqual(3, microtime(true) - $time);
+    $this->assertGreaterThanOrEqual(2, microtime(true) - $time);
 
     $time = microtime(true);
 
-    Blade::renderComponent(new CachedComponent);
+    dd(Blade::renderComponent(new CachedComponent));
 
-    $this->assertLessThan(3, microtime(true) - $time);
+    $this->assertLessThan(2, microtime(true) - $time);
 });

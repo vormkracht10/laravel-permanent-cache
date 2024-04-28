@@ -54,6 +54,17 @@ class PermanentCache
         return $this;
     }
 
+
+    /**
+     * Update all registered permanent caches
+     */
+    public function update()
+    {
+        foreach ($this->cachers as $cacher) {
+            $cacher->update();
+        }
+    }
+
     public function configuredCaches(): SplObjectStorage
     {
         return $this->cachers;
