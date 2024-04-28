@@ -7,39 +7,28 @@ use Vormkracht10\PermanentCache\Events\PermanentCacheUpdated;
 use Vormkracht10\PermanentCache\Events\PermanentCacheUpdating;
 use Vormkracht10\PermanentCache\Facades\PermanentCache;
 
+require_once 'tests/Unit/Events/TestEvent.php';
+require_once 'tests/Unit/Events/TestPermanentCache.php';
+
 beforeEach(function () {
-    Cache::driver('array')->clear();
+    Cache::driver('file')->clear();
     (fn () => $this->cachers = new \SplObjectStorage)->call(app(\Vormkracht10\PermanentCache\PermanentCache::class));
 });
 
-class TestEvent
-{
-}
-
-class TestCache extends Cached
-{
-    protected $store = 'array:test';
-
-    public function run(TestEvent $_): mixed
-    {
-        return 'it works!';
-    }
-}
-
-test('caches (listeners) get registered properly when using the PermanentCache facade', function () {
+test('caches listeners registers when using the PermanentCache facade', function () {
     $events = Event::fake([TestEvent::class]);
 
-    PermanentCache::caches([TestCache::class]);
+    PermanentCache::caches([TestPermanentCache::class]);
 
     $caches = PermanentCache::configuredCaches();
 
     expect($caches)
         ->count()->toBe(1)
-        ->current()->toBeInstanceOf(TestCache::class)
+        ->current()->toBeInstanceOf(TestPermanentCache::class)
         ->and($events)->hasListeners(TestEvent::class);
 });
 
-test('a cache will get updated when an event it\'s listening to gets fired', function () {
+test('cache gets updated when listening event gets fired', function () {
     global $pass;
     $pass = false;
 
@@ -60,9 +49,9 @@ test('a cache will get updated when an event it\'s listening to gets fired', fun
     unset($pass);
 });
 
-test('a cache will dispatch the updating and updated events when it gets invoked', function () {
+test('cache will dispatch the updating and updated events when it gets invoked', function () {
     Event::fakeExcept(TestEvent::class);
-    Permanentcache::caches(TestCache::class);
+    Permanentcache::caches(TestPermanentCache::class);
     event(new TestEvent);
     Event::assertDispatchedTimes(PermanentCacheUpdating::class, times: 1);
     Event::assertDispatchedTimes(PermanentCacheUpdated::class, times : 1);
