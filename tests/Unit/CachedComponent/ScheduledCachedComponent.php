@@ -7,7 +7,8 @@ class ScheduledCachedComponent extends \Vormkracht10\PermanentCache\CachedCompon
     protected $store = 'file:unique-cache-key';
 
     public function __construct(public string $parameter = '')
-    {}
+    {
+    }
 
     public function render(): string
     {

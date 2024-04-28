@@ -54,7 +54,6 @@ class PermanentCache
         return $this;
     }
 
-
     /**
      * Update all registered permanent caches
      */
