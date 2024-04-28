@@ -52,7 +52,9 @@ test('cache gets updated when listening event gets fired', function () {
 test('cache will dispatch the updating and updated events when it gets invoked', function () {
     Event::fakeExcept(TestEvent::class);
     Permanentcache::caches(TestPermanentCache::class);
+
     event(new TestEvent);
+
     Event::assertDispatchedTimes(PermanentCacheUpdating::class, times: 1);
     Event::assertDispatchedTimes(PermanentCacheUpdated::class, times : 1);
 });
