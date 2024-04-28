@@ -12,13 +12,11 @@ beforeEach(function () {
 test('test cached component is cached second time', function () {
     $time = microtime(true);
 
-    Blade::renderComponent(new CachedComponent);
-
-    $this->assertGreaterThanOrEqual(2, microtime(true) - $time);
+    $firstOutput = Blade::renderComponent(new CachedComponent);
 
     $time = microtime(true);
 
-    dd(Blade::renderComponent(new CachedComponent));
+    $secondOutput = Blade::renderComponent(new CachedComponent);
 
-    $this->assertLessThan(2, microtime(true) - $time);
+    $this->assertEquals($firstOutput, $secondOutput);
 });
