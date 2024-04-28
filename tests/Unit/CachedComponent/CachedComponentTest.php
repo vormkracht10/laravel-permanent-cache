@@ -16,7 +16,6 @@ test('test cached component is cached second time', function () {
     $this->assertEquals($firstRunOutput, $secondRunOutput);
 });
 
-
 test('test cached component with parameters is cached correctly', function () {
     $randomString = str_random();
 
