@@ -1,7 +1,5 @@
 <?php
 
-use Vormkracht10\PermanentCache\Scheduled;
-
 class CachedComponent extends \Vormkracht10\PermanentCache\CachedComponent
 {
     protected $store = 'file:unique-cache-key';
@@ -10,7 +8,7 @@ class CachedComponent extends \Vormkracht10\PermanentCache\CachedComponent
     {
         sleep(3);
 
-        return <<<HTML
+        return <<<'HTML'
             <div class="alert alert-danger">
                 This is a cached component!
             </div>

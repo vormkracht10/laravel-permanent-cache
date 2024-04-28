@@ -10,7 +10,7 @@ class ScheduledCachedComponent extends \Vormkracht10\PermanentCache\CachedCompon
     {
         sleep(10);
 
-        return <<<HTML
+        return <<<'HTML'
             <div class="alert alert-danger">
                 This is a cached component!
             </div>
