@@ -6,13 +6,13 @@ class ScheduledCachedComponent extends \Vormkracht10\PermanentCache\CachedCompon
 {
     protected $store = 'file:unique-cache-key';
 
-    public function __construct(public string $parameter = '')
+    public function __construct(public string $value = '')
     {
     }
 
     public function render(): string
     {
-        $value = $this->parameter;
+        $value = $this->value;
 
         return <<<'HTML'
             <div>This is a {{ $value ?? 'cached' }} component!</div>
