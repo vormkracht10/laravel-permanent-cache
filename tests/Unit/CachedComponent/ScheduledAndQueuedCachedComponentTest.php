@@ -1,10 +1,6 @@
 <?php
 
 use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Queue;
-use Vormkracht10\PermanentCache\Events\PermanentCacheUpdated;
-use Vormkracht10\PermanentCache\Events\PermanentCacheUpdating;
 use Vormkracht10\PermanentCache\Facades\PermanentCache;
 
 require_once 'tests/Unit/CachedComponent/ScheduledAndQueuedCachedComponent.php';
