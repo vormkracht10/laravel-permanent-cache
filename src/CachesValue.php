@@ -107,10 +107,9 @@ trait CachesValue
 
     public function shouldBeUpdating(): bool
     {
-        return (
-            !app()->environment('testing') &&
-            app()->runningInConsole()
-        );
+        return
+            ! app()->environment('testing') &&
+            app()->runningInConsole();
     }
 
     /**
