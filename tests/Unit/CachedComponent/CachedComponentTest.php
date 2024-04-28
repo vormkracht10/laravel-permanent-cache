@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Blade;
 
 require_once 'tests/Unit/CachedComponent/CachedComponent.php';
-require_once 'tests/Unit/CachedComponent/ScheduledCachedComponent.php';
 
 beforeEach(function () {
     Cache::driver('file')->clear();

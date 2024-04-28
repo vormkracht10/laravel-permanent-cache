@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Blade;
 use Vormkracht10\PermanentCache\Facades\PermanentCache;
 
-require_once 'tests/Unit/CachedComponent/CachedComponent.php';
 require_once 'tests/Unit/CachedComponent/ScheduledCachedComponent.php';
 
 beforeEach(function () {
