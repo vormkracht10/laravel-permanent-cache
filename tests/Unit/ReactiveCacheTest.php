@@ -8,7 +8,7 @@ use Vormkracht10\PermanentCache\Events\PermanentCacheUpdating;
 use Vormkracht10\PermanentCache\Facades\PermanentCache;
 
 beforeEach(function () {
-    Cache::driver('array')->clear();
+    Cache::driver('file')->clear();
     (fn () => $this->cachers = new \SplObjectStorage)->call(app(\Vormkracht10\PermanentCache\PermanentCache::class));
 });
 
