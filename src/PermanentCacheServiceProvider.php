@@ -5,12 +5,14 @@ namespace Vormkracht10\PermanentCache;
 use Illuminate\Console\Scheduling\Schedule;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Vormkracht10\PermanentCache\Commands\UpdatePermanentCachesCommand;
 
 class PermanentCacheServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
-        $package->name('laravel-permanent-cache');
+        $package->name('laravel-permanent-cache')
+            ->hasCommand(UpdatePermanentCachesCommand::class);
     }
 
     public function registeringPackage()
