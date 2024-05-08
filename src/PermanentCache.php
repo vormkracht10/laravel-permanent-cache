@@ -22,7 +22,7 @@ class PermanentCache
     {
         $registeredCaches = func_get_args();
 
-        if (! is_array(array_key_first($registeredCaches))) {
+        if (isset($registeredCaches[0]) && ! is_array($registeredCaches[0])) {
             $registeredCaches = [$registeredCaches];
         }
 
