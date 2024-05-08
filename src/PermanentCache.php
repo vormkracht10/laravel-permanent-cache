@@ -9,14 +9,14 @@ use SplObjectStorage;
 class PermanentCache
 {
     public function __construct(
-        protected SplObjectStorage $cachers,
+        protected SplObjectStorage $caches,
         protected Application $app,
     ) {
         //
     }
 
     /**
-     * @param  array<class-string<Cached|CachedComponent>, int>  $cachers
+     * @param  array<class-string<Cached|CachedComponent>, int>  $caches
      */
     public function caches($registeredCaches): self
     {
@@ -27,27 +27,27 @@ class PermanentCache
         }
 
         foreach ($registeredCaches as $registeredCache) {
-            foreach ($registeredCache as $cacher => $parameters) {
-                if (is_int($cacher)) {
+            foreach ($registeredCache as $cache => $parameters) {
+                if (is_int($cache)) {
                     if (is_string($parameters)) {
-                        $cacher = $parameters;
+                        $cache = $parameters;
                         $parameters = [];
                     } elseif (is_string(array_key_first($parameters))) {
-                        $cacher = array_key_first($parameters);
+                        $cache = array_key_first($parameters);
                         $parameters = array_shift($parameters);
                     } else {
-                        $cacher = \Arr::first($parameters);
+                        $cache = \Arr::first($parameters);
                         $parameters = [];
                     }
                 }
 
-                $cacherInstance = $this->app->make($cacher, $parameters);
+                $cacheInstance = $this->app->make($cache, $parameters);
 
-                if ([] !== $events = $cacherInstance->getListenerEvents()) {
-                    Event::listen($events, fn ($event) => $cacherInstance->handle($event));
+                if ([] !== $events = $cacheInstance->getListenerEvents()) {
+                    Event::listen($events, fn ($event) => $cacheInstance->handle($event));
                 }
 
-                $this->cachers[$cacherInstance] = $events;
+                $this->caches[$cacheInstance] = $events;
             }
         }
 
@@ -59,13 +59,13 @@ class PermanentCache
      */
     public function update()
     {
-        foreach ($this->cachers as $cacher) {
-            $cacher->update();
+        foreach ($this->caches as $cache) {
+            $cache->update();
         }
     }
 
     public function configuredCaches(): SplObjectStorage
     {
-        return $this->cachers;
+        return $this->caches;
     }
 }
