@@ -12,7 +12,7 @@ require_once 'tests/Unit/Events/TestPermanentCache.php';
 
 beforeEach(function () {
     Cache::driver('file')->clear();
-    (fn () => $this->cachers = new \SplObjectStorage)->call(app(\Vormkracht10\PermanentCache\PermanentCache::class));
+    (fn () => $this->caches = new \SplObjectStorage)->call(app(\Vormkracht10\PermanentCache\PermanentCache::class));
 });
 
 test('caches listeners registers when using the PermanentCache facade', function () {

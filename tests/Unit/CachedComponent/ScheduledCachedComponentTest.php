@@ -10,7 +10,7 @@ require_once 'tests/Unit/CachedComponent/ScheduledCachedComponent.php';
 beforeEach(function () {
     Cache::driver('file')->clear();
 
-    (fn () => $this->cachers = new \SplObjectStorage)->call(app(\Vormkracht10\PermanentCache\PermanentCache::class));
+    (fn () => $this->caches = new \SplObjectStorage)->call(app(\Vormkracht10\PermanentCache\PermanentCache::class));
 });
 
 test('test scheduled cached component gets scheduled', function () {

@@ -6,7 +6,7 @@ require_once 'tests/Unit/CachedComponent/CachedComponent.php';
 
 beforeEach(function () {
     Cache::driver('file')->clear();
-    (fn () => $this->cachers = new \SplObjectStorage)->call(app(\Vormkracht10\PermanentCache\PermanentCache::class));
+    (fn () => $this->caches = new \SplObjectStorage)->call(app(\Vormkracht10\PermanentCache\PermanentCache::class));
 });
 
 test('test cached component is cached second time', function () {

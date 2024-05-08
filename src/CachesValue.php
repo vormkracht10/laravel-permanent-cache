@@ -176,7 +176,7 @@ trait CachesValue
     /**
      * Get the cached value this cacher provides.
      *
-     * This method should be used inside your cachers
+     * This method should be used inside your caches
      * instead of the static `static::get` method to prevent
      * infinite recursion.
      *
