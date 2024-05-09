@@ -30,7 +30,7 @@ class PermanentCachesStatusCommand extends Command
     {
         $caches = PermanentCache::configuredCaches();
 
-        foreach($caches as $value) {
+        foreach ($caches as $value) {
             $cache = $caches->current();
             $parameters = $caches->getInfo();
 
