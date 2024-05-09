@@ -3,7 +3,6 @@
 namespace Vormkracht10\PermanentCache\Commands;
 
 use Illuminate\Console\Command;
-use ReflectionClass;
 use Spatie\Emoji\Emoji;
 use SplObjectStorage;
 use Symfony\Component\Console\Helper\ProgressBar;
