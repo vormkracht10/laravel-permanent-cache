@@ -3,7 +3,6 @@
 namespace Vormkracht10\PermanentCache\Commands;
 
 use Illuminate\Console\Command;
-use ReflectionClass;
 use Spatie\Emoji\Emoji;
 use SplObjectStorage;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -52,7 +51,6 @@ class UpdatePermanentCachesCommand extends Command
         $progressBar = $this->output->createProgressBar($caches->count());
 
         $progressBar->setFormat('custom');
-
         $progressBar->setMessage('Starting...');
 
         $progressBar->start();

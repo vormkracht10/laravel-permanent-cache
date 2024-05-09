@@ -3,6 +3,9 @@
 namespace Vormkracht10\PermanentCache\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Console\Scheduling\Schedule;
+use Lorisleiva\CronTranslator\CronTranslator;
+use ReflectionClass;
 use Spatie\Emoji\Emoji;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Vormkracht10\PermanentCache\Facades\PermanentCache;
@@ -30,6 +33,11 @@ class PermanentCachesStatusCommand extends Command
     {
         $caches = PermanentCache::configuredCaches();
 
+        $frequencies = collect(app(Schedule::class)->events())
+            ->mapWithKeys(function ($schedule) {
+                return [$schedule->description => CronTranslator::translate($schedule->expression)];
+            });
+
         foreach ($caches as $c) {
             $cache = $caches->current();
             $parameters = $caches->getInfo();
@@ -46,9 +54,9 @@ class PermanentCachesStatusCommand extends Command
             $row = [
                 $cache->isCached($parameters) ? Emoji::checkMarkButton() : Emoji::crossMark(),
                 $cache->getName(),
-                is_object($cached) ? readable_size($cached->size) : 'N/A',
-                is_object($cached) ? $cached->expression : 'N/A',
-                is_object($cached) ? $cached->updated_at->diffForHumans() : 'N/A',
+                $cached ? readable_size(strlen(serialize($cached))) : 'N/A',
+                $cached?->updated_at?->diffForHumans() ?: 'N/A',
+                $frequencies[$cache->getName()] ?? 'N/A',
             ];
 
             if ($this->option('parameters')) {
@@ -62,7 +70,7 @@ class PermanentCachesStatusCommand extends Command
         array_pop($cachesTable);
 
         $this->table(
-            [null, 'Cache', 'Size', 'Frequency', 'Last Updated'] + ($this->option('parameters') ? ['Parameters'] : []),
+            [null, 'Cache', 'Size', 'Last Updated', 'Frequency'] + ($this->option('parameters') ? ['Parameters'] : []),
             $cachesTable,
             'box',
         );

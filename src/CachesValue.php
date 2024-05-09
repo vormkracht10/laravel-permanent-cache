@@ -7,6 +7,7 @@ use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use ReflectionClass;
 use Vormkracht10\PermanentCache\Events\PermanentCacheUpdated;
 use Vormkracht10\PermanentCache\Events\PermanentCacheUpdating;
@@ -44,13 +45,6 @@ trait CachesValue
     protected $expression = null;
 
     /**
-     * The parameters this cache should be stored with.
-     *
-     * @var array<string, mixed>
-     */
-    protected $parameters = [];
-
-    /**
      * Indicates whether this cache is currently updating or not.
      *
      * @var bool
@@ -75,12 +69,8 @@ trait CachesValue
             ? Blade::renderComponent($this)
             : $this->run($event);
 
-        $expression = (new ReflectionClass(static::class))->getProperty('expression')->getDefaultValue();
-
         Cache::driver($driver)->forever($cacheKey, (object) [
             'value' => $value,
-            'size' => strlen($value),
-            'expression' => $expression,
             'updated_at' => now(),
         ]);
 
@@ -105,13 +95,7 @@ trait CachesValue
      */
     private static function store($parameters): array
     {
-        $class = static::class;
-
-        $store = (new ReflectionClass($class))
-            ->getProperty('store')
-            ->getDefaultValue();
-
-        return self::parseCacheString($class, $store, $parameters);
+        return self::getCacheKey($parameters);
     }
 
     public function isCached($parameters = []): bool
@@ -119,9 +103,8 @@ trait CachesValue
         [$driver, $cacheKey] = self::store($parameters ?? []);
 
         $cache = Cache::driver($driver);
-        $cached = $cache->get($cacheKey);
 
-        return $cached && filled($cached?->value);
+        return $cache->has($cacheKey);
     }
 
     /**
@@ -255,9 +238,17 @@ trait CachesValue
     /**
      * @return array{string, string}
      */
-    private static function parseCacheString($class, ?string $store, ?array $parameters = []): array
+    public static function getCacheKey(?array $parameters = [], ?string $store = null, ?string $class = null): array
     {
-        if ($store && strpos($store, ':')) {
+        $class ??= static::class;
+        $store ??= (new ReflectionClass($class))
+            ->getProperty('store')
+            ->getDefaultValue();
+
+        if (
+            ! is_null($store) &&
+            strpos($store, ':')
+        ) {
             $cacheDriver = substr($store, 0, strpos($store, ':'));
             $cacheKey = substr($store, strpos($store, ':') + 1);
         } else {
@@ -265,7 +256,7 @@ trait CachesValue
         }
 
         $cacheDriver ??= config('cache.default');
-        $cacheKey ??= preg_replace('/[^A-Za-z0-9]+/', '_', strtolower(\Str::snake($class)));
+        $cacheKey ??= preg_replace('/[^A-Za-z0-9]+/', '_', strtolower(Str::snake($class)));
 
         if ($parameters) {
             $cacheKey .= ':'.http_build_query($parameters);
