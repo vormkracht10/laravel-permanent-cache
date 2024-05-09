@@ -22,8 +22,8 @@ abstract class CachedComponent extends Component
             return parent::resolveView();
         }
 
-        if (null !== $cachedValue = $this->get($this->getParameters())) {
-            return new HtmlString((string) $cachedValue);
-        }
+        $cachedValue = $this->get($this->getParameters()) ?: $this->updateAndGet($this->getParameters());
+
+        return new HtmlString((string) $cachedValue);
     }
 }
