@@ -108,11 +108,6 @@ trait CachesValue
         return self::parseCacheString($class, $store, $parameters);
     }
 
-    public function shouldBeUpdating(): bool
-    {
-        return app()->runningInConsole();
-    }
-
     public function isCached($parameters = []): bool
     {
         [$driver, $cacheKey] = self::store($parameters ?? []);
