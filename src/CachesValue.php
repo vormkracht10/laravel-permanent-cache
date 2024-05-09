@@ -188,6 +188,16 @@ trait CachesValue
         );
     }
 
+    public function getName(): string
+    {
+        return (new ReflectionClass($this))->getName();
+    }
+
+    public function getShortName(): string
+    {
+        return (new ReflectionClass($this))->getShortName();
+    }
+
     /// Default implementation for the `\Scheduled::schedule` method.
     /** @param CallbackEvent $callback */
     public static function schedule($callback)
