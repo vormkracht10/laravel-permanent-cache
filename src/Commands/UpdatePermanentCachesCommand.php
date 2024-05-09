@@ -47,7 +47,7 @@ class UpdatePermanentCachesCommand extends Command
             $cache->update();
 
             $currentTask = (new ReflectionClass($cache))->getName();
-            $emoji = ($progressBar->getProgress() %2 ? Emoji::hourglassNotDone() : Emoji::hourglassDone());
+            $emoji = ($progressBar->getProgress() % 2 ? Emoji::hourglassNotDone() : Emoji::hourglassDone());
 
             $progressBar->setMessage('Updating: '.$currentTask.' '.$emoji);
             $progressBar->advance();
