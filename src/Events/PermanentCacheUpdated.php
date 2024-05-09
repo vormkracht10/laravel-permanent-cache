@@ -10,7 +10,7 @@ class PermanentCacheUpdated
 {
     use Dispatchable;
 
-    public function __construct(public readonly Cached|CachedComponent $cache)
+    public function __construct(public readonly Cached|CachedComponent $cache, public mixed $value)
     {
         //
     }

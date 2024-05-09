@@ -77,13 +77,9 @@ trait CachesValue
             ? Blade::renderComponent($this)
             : $this->run($event);
 
-        if (is_null($value)) {
-            return;
-        }
-
         Cache::driver($driver)->forever($cacheKey, $value);
 
-        PermanentCacheUpdated::dispatch($this);
+        PermanentCacheUpdated::dispatch($this, $value);
 
         $this->isUpdating = false;
     }
@@ -118,20 +114,23 @@ trait CachesValue
         return app()->runningInConsole();
     }
 
+    public function isCached($parameters = []): bool
+    {
+        [$driver, $cacheKey] = self::store($parameters ?? []);
+
+        $cache = Cache::driver($driver);
+
+        return $cache->has($cacheKey);
+    }
+
     /**
      * Manually force a static cache to update.
      */
     final public static function update($parameters = []): ?PendingDispatch
     {
-        $instance = app()->make(static::class, $parameters);
-
-        if (! is_subclass_of(static::class, ShouldQueue::class)) {
-            $instance->handle();
-
-            return null;
-        }
-
-        return dispatch($instance);
+        return dispatch(
+            app()->make(static::class, $parameters)
+        );
     }
 
     /**

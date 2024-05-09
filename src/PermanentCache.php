@@ -47,7 +47,7 @@ class PermanentCache
                     Event::listen($events, fn ($event) => $cacheInstance->handle($event));
                 }
 
-                $this->caches[$cacheInstance] = $events;
+                $this->caches[$cacheInstance] = $parameters;
             }
         }
 
