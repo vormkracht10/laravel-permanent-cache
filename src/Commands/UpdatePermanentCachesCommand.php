@@ -4,6 +4,7 @@ namespace Vormkracht10\PermanentCache\Commands;
 
 use Illuminate\Console\Command;
 use ReflectionClass;
+use Spatie\Emoji\Emoji;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Vormkracht10\PermanentCache\Facades\PermanentCache;
 
@@ -45,7 +46,10 @@ class UpdatePermanentCachesCommand extends Command
         $caches->each(function ($cache) use ($progressBar) {
             $cache->update();
 
-            $progressBar->setMessage('Updating: '.(new ReflectionClass($cache))->getName());
+            $currentTask = (new ReflectionClass($cache))->getName();
+            $emoji = ($progressBar->getProgress() %2 ? Emoji::hourglassNotDone() : Emoji::hourglassDone());
+
+            $progressBar->setMessage('Updating: '.$currentTask.' '.$emoji);
             $progressBar->advance();
         });
 
