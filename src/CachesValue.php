@@ -100,6 +100,8 @@ trait CachesValue
 
     public function isCached($parameters = []): bool
     {
+        $parameters ??= $this->getParameters();
+
         [$driver, $cacheKey] = self::store($parameters ?? []);
 
         $cache = Cache::driver($driver);
@@ -110,21 +112,25 @@ trait CachesValue
     /**
      * Manually force a static cache to update.
      */
-    final public static function update($parameters = [], bool $returnOutput = false)
+    final public static function update($parameters = [])
     {
         $instance = app()->make(static::class, $parameters);
-
-        if ($returnOutput) {
-            dispatch(
-                $instance
-            )->onConnection('sync');
-
-            return static::get($parameters);
-        }
 
         dispatch(
             $instance
         );
+    }
+
+    /**
+     * Manually force a static cache to update.
+     */
+    final public static function updateAndGet($parameters = [])
+    {
+        $instance = app()->make(static::class, $parameters);
+
+        return dispatch(
+            $instance
+        )->onConnection('sync');
     }
 
     /**
