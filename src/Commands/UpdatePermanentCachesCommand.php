@@ -39,7 +39,7 @@ class UpdatePermanentCachesCommand extends Command
 
             if (
                 $this->option('filter') &&
-                !str_contains(strtolower($cache->getName()), strtolower($this->option('filter')))
+                ! str_contains(strtolower($cache->getName()), strtolower($this->option('filter')))
             ) {
                 continue;
             }

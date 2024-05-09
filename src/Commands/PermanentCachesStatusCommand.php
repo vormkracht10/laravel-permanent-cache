@@ -3,7 +3,6 @@
 namespace Vormkracht10\PermanentCache\Commands;
 
 use Illuminate\Console\Command;
-use ReflectionClass;
 use Spatie\Emoji\Emoji;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Vormkracht10\PermanentCache\Facades\PermanentCache;
