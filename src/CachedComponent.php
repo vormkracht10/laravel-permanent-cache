@@ -16,8 +16,7 @@ abstract class CachedComponent extends Component
     public function resolveView()
     {
         if (
-            $this->isUpdating ||
-            $this->shouldBeUpdating()
+            $this->isUpdating
         ) {
             return parent::resolveView();
         }
