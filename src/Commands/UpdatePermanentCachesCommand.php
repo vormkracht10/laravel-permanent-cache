@@ -26,6 +26,8 @@ class UpdatePermanentCachesCommand extends Command
      */
     public function handle()
     {
-        PermanentCache::update();
+        $caches = PermanentCache::configuredCaches();
+
+        $this->withProgressBar($caches, fn ($cache) => $cache->update());
     }
 }
