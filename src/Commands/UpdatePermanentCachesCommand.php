@@ -15,7 +15,7 @@ class UpdatePermanentCachesCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'permanent-cache:update';
+    protected $signature = 'permanent-cache:update {--filter=}';
 
     /**
      * The console command description.
@@ -32,6 +32,10 @@ class UpdatePermanentCachesCommand extends Command
         $caches = collect(
             PermanentCache::configuredCaches()
         );
+
+        if($this->option('filter')) {
+            $caches = $caches->filter(fn ($cache) => str_contains(strtolower($cache->getName()), strtolower($this->option('filter'))));
+        }
 
         ProgressBar::setFormatDefinition('custom', ' %current%/%max% [%bar%] %message%');
 
