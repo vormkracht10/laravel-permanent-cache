@@ -15,7 +15,7 @@ class PermanentCachesStatusCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'permanent-cache:status {--P|parameters}';
+    protected $signature = 'permanent-cache:status {--P|parameters} {--F|filter=}';
 
     /**
      * The console command description.
@@ -35,11 +35,21 @@ class PermanentCachesStatusCommand extends Command
             $cache = $caches->current();
             $parameters = $caches->getInfo();
 
+            if (
+                $this->option('filter') &&
+                ! str_contains(strtolower($cache->getName()), strtolower($this->option('filter')))
+            ) {
+                continue;
+            }
+
+            $cached = $cache->getMeta($parameters);
+
             $row = [
                 $cache->isCached($parameters) ? Emoji::checkMarkButton() : Emoji::crossMark(),
-                (new ReflectionClass($cache))->getName(),
-                readable_size(strlen($cache->get($parameters))),
-                '',
+                $cache->getName(),
+                is_object($cached) ? readable_size($cached->size) : 'N/A',
+                is_object($cached) ? $cached->expression : 'N/A',
+                is_object($cached) ? $cached->updated_at->diffForHumans() : 'N/A',
             ];
 
             if ($this->option('parameters')) {
@@ -53,7 +63,7 @@ class PermanentCachesStatusCommand extends Command
         array_pop($cachesTable);
 
         $this->table(
-            [null, 'Cache', 'Size', 'Last Updated'] + ($this->option('parameters') ? ['Parameters'] : []),
+            [null, 'Cache', 'Size', 'Frequency', 'Last Updated'] + ($this->option('parameters') ? ['Parameters'] : []),
             $cachesTable,
             'box',
         );

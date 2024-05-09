@@ -5,6 +5,7 @@ namespace Vormkracht10\PermanentCache\Commands;
 use Illuminate\Console\Command;
 use ReflectionClass;
 use Spatie\Emoji\Emoji;
+use SplObjectStorage;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Vormkracht10\PermanentCache\Facades\PermanentCache;
 
@@ -29,12 +30,21 @@ class UpdatePermanentCachesCommand extends Command
      */
     public function handle()
     {
-        $caches = collect(
-            PermanentCache::configuredCaches()
-        );
+        $configuredCaches = PermanentCache::configuredCaches();
+        $caches = new SplObjectStorage;
 
-        if($this->option('filter')) {
-            $caches = $caches->filter(fn ($cache) => str_contains(strtolower($cache->getName()), strtolower($this->option('filter'))));
+        foreach ($configuredCaches as $c) {
+            $cache = $configuredCaches->current();
+            $parameters = $configuredCaches->getInfo();
+
+            if (
+                $this->option('filter') &&
+                !str_contains(strtolower($cache->getName()), strtolower($this->option('filter')))
+            ) {
+                continue;
+            }
+
+            $caches[$cache] = $parameters;
         }
 
         ProgressBar::setFormatDefinition('custom', ' %current%/%max% [%bar%] %message%');
@@ -47,15 +57,18 @@ class UpdatePermanentCachesCommand extends Command
 
         $progressBar->start();
 
-        $caches->each(function ($cache) use ($progressBar) {
-            $cache->update();
+        foreach ($caches as $c) {
+            $cache = $caches->current();
+            $parameters = $caches->getInfo();
+
+            $cache->update($parameters);
 
             $currentTask = (new ReflectionClass($cache))->getName();
             $emoji = ($progressBar->getProgress() % 2 ? Emoji::hourglassNotDone() : Emoji::hourglassDone());
 
             $progressBar->setMessage('Updating: '.$currentTask.' '.$emoji);
             $progressBar->advance();
-        });
+        }
 
         $progressBar->setMessage('Finished!');
         $progressBar->finish();

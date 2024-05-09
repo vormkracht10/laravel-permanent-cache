@@ -4,7 +4,6 @@ namespace Vormkracht10\PermanentCache;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Console\Scheduling\CallbackEvent;
-use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
@@ -76,7 +75,14 @@ trait CachesValue
             ? Blade::renderComponent($this)
             : $this->run($event);
 
-        Cache::driver($driver)->forever($cacheKey, $value);
+        $expression = (new ReflectionClass(static::class))->getProperty('expression')->getDefaultValue();
+
+        Cache::driver($driver)->forever($cacheKey, (object) [
+            'value' => $value,
+            'size' => strlen($value),
+            'expression' => $expression,
+            'updated_at' => now(),
+        ]);
 
         PermanentCacheUpdated::dispatch($this, $value);
 
@@ -113,17 +119,28 @@ trait CachesValue
         [$driver, $cacheKey] = self::store($parameters ?? []);
 
         $cache = Cache::driver($driver);
+        $cached = $cache->get($cacheKey);
 
-        return $cache->has($cacheKey);
+        return $cached && filled($cached?->value);
     }
 
     /**
      * Manually force a static cache to update.
      */
-    final public static function update($parameters = []): ?PendingDispatch
+    final public static function update($parameters = [], bool $returnOutput = false)
     {
-        return dispatch(
-            app()->make(static::class, $parameters)
+        $instance = app()->make(static::class, $parameters);
+
+        if ($returnOutput) {
+            dispatch(
+                $instance
+            )->onConnection('sync');
+
+            return static::get($parameters);
+        }
+
+        dispatch(
+            $instance
         );
     }
 
@@ -134,40 +151,32 @@ trait CachesValue
      *                        when it doesn't hold the value yet.
      * @return V|mixed|null
      */
-    final public static function get($default = null, bool $update = false): mixed
+    final public static function get($parameters = [], $default = null, bool $update = false): mixed
     {
-        if (is_subclass_of(static::class, CachedComponent::class)) {
-            $parameters = $default;
-            $default = null;
-        }
-
         [$driver, $cacheKey] = self::store($parameters ?? []);
 
         $cache = Cache::driver($driver);
 
-        if ($update && ! $cache->has($cacheKey)) {
-            static::update($parameters ?? [])->onConnection('sync');
+        if (
+            $update && ! $cache->has($cacheKey)
+        ) {
+            static::update($parameters ?? []);
         }
 
-        return $cache->get($cacheKey, $default);
+        return $cache->get($cacheKey, $default)?->value;
     }
 
-    /**
-     * Force an update of the cache and return the updated value.
-     *
-     * @return V|mixed
-     */
-    final public static function updateAndGet($parameters = []): mixed
+    final public function getMeta($parameters = []): mixed
     {
-        [$driver, $cacheKey] = self::store($parameters);
+        [$driver, $cacheKey] = $this->store($parameters ?? []);
 
-        static::update($parameters)->onConnection('sync');
+        $cache = Cache::driver($driver);
 
-        return Cache::driver($driver)->get($cacheKey);
+        return $cache->get($cacheKey);
     }
 
     /**
-     * Get the cached value this cacher provides.
+     * Get the cached value this cache provides.
      *
      * This method should be used inside your caches
      * instead of the static `static::get` method to prevent
@@ -185,7 +194,7 @@ trait CachesValue
 
         return Cache::driver($driver)->get(
             $cacheKey, $default,
-        );
+        )?->value;
     }
 
     public function getName(): string
