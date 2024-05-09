@@ -1,6 +1,10 @@
 <?php
 
-class CachedComponent extends \Vormkracht10\PermanentCache\CachedComponent
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Vormkracht10\PermanentCache\CachedComponent;
+use Vormkracht10\PermanentCache\Scheduled;
+
+class ScheduledAndQueuedCachedComponent extends CachedComponent implements Scheduled, ShouldQueue
 {
     protected $store = 'file:unique-cache-key';
 
@@ -15,5 +19,10 @@ class CachedComponent extends \Vormkracht10\PermanentCache\CachedComponent
         return <<<'HTML'
             <div>This is a {{ $value ?? 'cached' }} component!</div>
         HTML;
+    }
+
+    public static function schedule($callback)
+    {
+        return $callback->everyMinute();
     }
 }
