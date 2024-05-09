@@ -36,7 +36,7 @@ class PermanentCachesStatusCommand extends Command
             $parameters = $caches->getInfo();
 
             $row = [
-                $cache->isCached($parameters) ? Emoji::checkMarkButton() : Emoji::crossMarkButton(),
+                $cache->isCached($parameters) ? Emoji::checkMarkButton() : Emoji::crossMark(),
                 (new ReflectionClass($cache))->getName(),
                 readable_size(strlen($cache->get($parameters))),
                 '',
