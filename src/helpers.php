@@ -3,7 +3,7 @@
 if (! function_exists('readable_size')) {
     function readable_size($bytes = 0, $decimals = 2, $decimal_separator = ',', $thousands_separator = '.'): string
     {
-        if(is_null($bytes)) {
+        if (is_null($bytes)) {
             return '';
         }
 
