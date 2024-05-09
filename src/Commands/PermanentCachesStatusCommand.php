@@ -50,6 +50,8 @@ class PermanentCachesStatusCommand extends Command
             $cachesTable[] = new TableSeparator();
         }
 
+        array_pop($cachesTable);
+
         $this->table(
             [null, 'Cache', 'Size', 'Last Updated'] + ($this->option('parameters') ? ['Parameters'] : []),
             $cachesTable,
