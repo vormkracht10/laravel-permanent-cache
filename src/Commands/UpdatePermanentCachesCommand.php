@@ -33,7 +33,7 @@ class UpdatePermanentCachesCommand extends Command
             PermanentCache::configuredCaches()
         );
 
-        if($this->option('filter')) {
+        if ($this->option('filter')) {
             $caches = $caches->filter(fn ($cache) => str_contains(strtolower($cache->getName()), strtolower($this->option('filter'))));
         }
 
