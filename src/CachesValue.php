@@ -65,12 +65,11 @@ trait CachesValue
 
         PermanentCacheUpdating::dispatch($this);
 
-        if(is_subclass_of(static::class, CachedComponent::class)) {
+        if (is_subclass_of(static::class, CachedComponent::class)) {
             $value = Blade::renderComponent($this);
 
             $value = $this->addMarkers($value);
-        }
-        else {
+        } else {
             $value = $this->run($event);
         }
 
