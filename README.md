@@ -25,6 +25,8 @@ Optionally, publish config files to change the default config:
 php artisan vendor:publish --provider="Vormkracht10\PermanentCache\PermanentCacheServiceProvider"
 ```
 
+The default config options:
+
 ```php
 <?php
 
