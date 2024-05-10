@@ -37,6 +37,8 @@ class PermanentCachesStatusCommand extends Command
                 return [$schedule->description => CronTranslator::translate($schedule->expression)];
             });
 
+        $tableRows = [];
+
         foreach ($caches as $c) {
             $cache = $caches->current();
             $parameters = $caches->getInfo();
@@ -62,15 +64,15 @@ class PermanentCachesStatusCommand extends Command
                 $row[] = $this->parseParameters($parameters);
             }
 
-            $cachesTable[] = $row;
-            $cachesTable[] = new TableSeparator();
+            $tableRows[] = $row;
+            $tableRows[] = new TableSeparator();
         }
 
-        array_pop($cachesTable);
+        array_pop($tableRows);
 
         $this->table(
             [null, 'Cache', 'Size', 'Last Updated', 'Frequency'] + ($this->option('parameters') ? ['Parameters'] : []),
-            $cachesTable,
+            $tableRows,
             'box',
         );
     }
