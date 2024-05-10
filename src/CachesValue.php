@@ -295,9 +295,9 @@ trait CachesValue
             ! config('permanent-cache.components.markers.enabled') ||
             ! is_subclass_of($this, CachedComponent::class)
         ) {
-            return (string) $value;
+            return $value;
         }
 
-        return $this->getMarker().$value.$this->getMarker(close: true);
+        return (string) $this->getMarker().$value.$this->getMarker(close: true);
     }
 }
