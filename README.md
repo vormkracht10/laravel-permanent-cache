@@ -254,7 +254,7 @@ This package contains Artisan commands to optimize DX when implementing Permanen
 php artisan permanent-cache:update --filter=
 
 # Show status overview of all registered caches including cached status, cache size, last updated at and scheduled update frequency
-pho artisan permanent-cache:status --parameters --filter=
+php artisan permanent-cache:status --parameters --filter=
 ```
 
 ##### [Read more on Jobs & Queues](https://laravel.com/docs/queues)
