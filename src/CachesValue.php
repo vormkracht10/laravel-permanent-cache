@@ -293,7 +293,7 @@ trait CachesValue
     {
         if (
             ! config('permanent-cache.components.markers.enabled') ||
-            is_subclass_of($this, CachedComponent::class)
+            ! is_subclass_of($this, CachedComponent::class)
         ) {
             return (string) $value;
         }
