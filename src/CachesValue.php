@@ -59,9 +59,13 @@ trait CachesValue
      */
     final public function handle($event = null): void
     {
+        // disable possible active caching mechanisms
+        $cacheDefault = config('cache.default');
+        config(['cache.default' => null]);
+
         $this->isUpdating = true;
 
-        [$driver, $cacheKey] = $this->store($this->getParameters());
+        [$store, $cacheKey] = $this->store($this->getParameters());
 
         PermanentCacheUpdating::dispatch($this);
 
@@ -73,7 +77,7 @@ trait CachesValue
             $value = $this->run($event);
         }
 
-        Cache::driver($driver)->forever($cacheKey, (object) [
+        Cache::store($store)->forever($cacheKey, (object) [
             'value' => $value,
             'updated_at' => now(),
         ]);
@@ -81,6 +85,9 @@ trait CachesValue
         PermanentCacheUpdated::dispatch($this, $value);
 
         $this->isUpdating = false;
+
+        // return cache store to original value
+        config(['cache.default' => $cacheDefault]);
     }
 
     public function getParameters()
@@ -89,11 +96,11 @@ trait CachesValue
             ->getProperties(\ReflectionProperty::IS_PUBLIC))
             ->filter(fn (\ReflectionProperty $p) => $p->class === static::class)
             ->mapWithKeys(fn (\ReflectionProperty $p) => [$p->name => $p->getValue($this)])
-            ->toArray();
+            ->all();
     }
 
     /**
-     * Get the driver and identifier specified in the $store property.
+     * Get the store and identifier specified in the $store property.
      *
      * @return array{string, string}
      */
@@ -106,9 +113,9 @@ trait CachesValue
     {
         $parameters ??= $this->getParameters();
 
-        [$driver, $cacheKey] = self::store($parameters ?? []);
+        [$store, $cacheKey] = self::store($parameters ?? []);
 
-        $cache = Cache::driver($driver);
+        $cache = Cache::store($store);
 
         return $cache->has($cacheKey);
     }
@@ -148,9 +155,9 @@ trait CachesValue
      */
     final public static function get($parameters = [], $default = null, bool $update = false): mixed
     {
-        [$driver, $cacheKey] = self::store($parameters ?? []);
+        [$store, $cacheKey] = self::store($parameters ?? []);
 
-        $cache = Cache::driver($driver);
+        $cache = Cache::store($store);
 
         if (
             $update &&
@@ -164,9 +171,9 @@ trait CachesValue
 
     final public function getMeta($parameters = []): mixed
     {
-        [$driver, $cacheKey] = $this->store($parameters ?? []);
+        [$store, $cacheKey] = $this->store($parameters ?? []);
 
-        $cache = Cache::driver($driver);
+        $cache = Cache::store($store);
 
         return $cache->get($cacheKey);
     }
@@ -186,9 +193,9 @@ trait CachesValue
             throw new \Exception("A cached component can't have a default return value");
         }
 
-        [$driver, $cacheKey] = $this->store($this->getParameters());
+        [$store, $cacheKey] = $this->store($this->getParameters());
 
-        return Cache::driver($driver)->get(
+        return Cache::store($store)->get(
             $cacheKey, $default,
         )?->value;
     }
@@ -262,27 +269,27 @@ trait CachesValue
             ! is_null($store) &&
             strpos($store, ':')
         ) {
-            $cacheDriver = substr($store, 0, strpos($store, ':'));
+            $cacheStore = substr($store, 0, strpos($store, ':'));
             $cacheKey = substr($store, strpos($store, ':') + 1);
         } else {
             $cacheKey = $store;
         }
 
-        $cacheDriver ??= config('permanent-cache.driver') ?: config('cache.default');
+        $cacheStore ??= config('permanent-cache.driver') ?: config('cache.default');
         $cacheKey ??= preg_replace('/[^A-Za-z0-9]+/', '_', strtolower(Str::snake($class)));
 
         if ($parameters) {
             $cacheKey .= ':'.http_build_query($parameters);
         }
 
-        return [$cacheDriver, $cacheKey];
+        return [$cacheStore, $cacheKey];
     }
 
     public function getMarker(array $parameters = [], $close = false): string
     {
-        [$cacheDriver, $cacheKey] = $this::store($parameters ?? $this->getParameters());
+        [$cacheStore, $cacheKey] = $this::store($parameters ?? $this->getParameters());
 
-        $marker = $cacheDriver.':'.$cacheKey;
+        $marker = $cacheStore.':'.$cacheKey;
 
         if (config('permanent-cache.components.markers.hash')) {
             $marker = md5($marker);
