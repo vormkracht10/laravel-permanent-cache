@@ -3,6 +3,7 @@
 namespace Vormkracht10\PermanentCache;
 
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use SplObjectStorage;
 
@@ -36,7 +37,7 @@ class PermanentCache
                         $cache = array_key_first($parameters);
                         $parameters = array_shift($parameters);
                     } else {
-                        $cache = \Arr::first($parameters);
+                        $cache = Arr::first($parameters);
                         $parameters = [];
                     }
                 }
@@ -44,7 +45,9 @@ class PermanentCache
                 $cacheInstance = $this->app->make($cache, $parameters);
 
                 if ([] !== $events = $cacheInstance->getListenerEvents()) {
-                    Event::listen($events, fn ($event) => $cacheInstance->handle($event));
+                    foreach($events as $event) {
+                        Event::listen($event, fn () => $cacheInstance->handle(new $event));
+                    }
                 }
 
                 $this->caches[$cacheInstance] = $parameters;
@@ -57,7 +60,7 @@ class PermanentCache
     /**
      * Update all registered permanent caches
      */
-    public function update()
+    public function update(): void
     {
         foreach ($this->caches as $cache) {
             $cache->update();
