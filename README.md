@@ -19,6 +19,33 @@ You can install the package via composer:
 composer require vormkracht10/laravel-permanent-cache
 ```
 
+Optionally, publish config files to change the default config:
+
+```bash
+php artisan vendor:publish --provider="Vormkracht10\PermanentCache\PermanentCacheServiceProvider"
+```
+
+```php
+<?php
+
+return [
+    // Default cache driver to use for permanent cache
+    'driver' => env('PERMANENT_CACHE_DRIVER', 'redis'),
+
+    // Option for cached components to add markers around output
+    'components' => [
+        // Add markers around the rendered value of Cached Components,
+        // this helps to identify the cached value in the rendered HTML.
+
+        // Which is useful for debugging and testing, but also for updating
+        // the cached value inside another cache when using nested caches
+        'markers' => [
+            'enabled' => env('PERMANENT_CACHE_MARKERS_ENABLED', true),
+            'hash' => env('PERMANENT_CACHE_MARKERS_HASH', env('APP_ENV') === 'production'),
+        ],
+    ],
+];```
+
 # Usage
 
 All caches you create must be registered to the `PermanentCache::caches` facade. 
