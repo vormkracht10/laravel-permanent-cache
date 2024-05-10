@@ -291,10 +291,13 @@ trait CachesValue
 
     public function markValue($value): string
     {
-        if (config('permanent-cache.components.markers.enabled')) {
-            $value = $this->getMarker().$value.$this->getMarker(close: true);
+        if (
+            ! config('permanent-cache.components.markers.enabled') ||
+            is_subclass_of($this, CachedComponent::class)
+        ) {
+            return (string) $value;
         }
 
-        return (string) $value;
+        return $this->getMarker().$value.$this->getMarker(close: true);
     }
 }
