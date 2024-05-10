@@ -180,10 +180,10 @@ class LongRunningTaskExecutedPeriodicallyOrWhenAnEventHappensDispatchedOnTheQueu
 }
 ```
 
-## Bonus: Cached Blade Components
+## Feature: Cached Blade Components
 
 One super handy feature are "Cached Components", these are Blade Components that could contain a longer running task on which you don't want your users to wait for completing. So you execute the Blade component when needed in the background,
-using the scheduler, or queue, while optionally listening for events to happen that should cause the permanent cache to update.
+using the scheduler, or queue, while optionally listening for events to happen that will cause the permanent cache to update.
 
 ```php
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -225,7 +225,15 @@ This will automatically run or queue the execution of the task:
 LongTaskInPermanentCache::update(['parameter' => 'value']);
 ```
 
-## Events dispatched when updating Permanent Caches
+Or you can update all caches at once:
+
+```php
+use Vormkracht10\PermanentCache\Facades\PermanentCache;
+
+PermanentCache::update();
+```
+
+## Events when updating Permanent Caches
 
 These events get dispatched when a Permanent Cache gets updated:
 
@@ -235,6 +243,18 @@ use Vormkracht10\PermanentCache\Events\PermanentCacheUpdating;
 
 # After the cache has been updated
 use Vormkracht10\PermanentCache\Events\PermanentCacheUpdated;
+```
+
+## Console commands
+
+This package contains Artisan commands to optimize DX when implementing Permanent Cache:
+
+```php
+# Update all caches that match namespace using the optional filter
+php artisan permanent-cache:update --filter=
+
+# Show status overview of all registered caches including cached status, cache size, last updated at and scheduled update frequency
+pho artisan permanent-cache --parameters --filter=
 ```
 
 ##### [Read more on Jobs & Queues](https://laravel.com/docs/queues)
