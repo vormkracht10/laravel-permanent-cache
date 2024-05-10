@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'driver' => env('PERMANENT_CACHE_DRIVER', 'redis'),
+    'driver' => env('PERMANENT_CACHE_DRIVER', 'file'),
 
     'components' => [
         // Add markers around the rendered value of Cached Components,
