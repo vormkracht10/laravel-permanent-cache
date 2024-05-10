@@ -32,7 +32,7 @@ The default config options:
 
 return [
     // Default cache driver to use for permanent cache
-    'driver' => env('PERMANENT_CACHE_DRIVER', 'redis'),
+    'driver' => env('PERMANENT_CACHE_DRIVER', 'file'),
 
     // Option for cached components to add markers around output
     'components' => [
