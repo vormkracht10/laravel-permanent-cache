@@ -65,11 +65,14 @@ trait CachesValue
 
         PermanentCacheUpdating::dispatch($this);
 
-        $value = is_subclass_of(static::class, CachedComponent::class)
-            ? Blade::renderComponent($this)
-            : $this->run($event);
+        if(is_subclass_of(static::class, CachedComponent::class)) {
+            $value = Blade::renderComponent($this);
 
-        $value = $this->markValue($value);
+            $value = $this->addMarkers($value);
+        }
+        else {
+            $value = $this->run($event);
+        }
 
         Cache::driver($driver)->forever($cacheKey, (object) [
             'value' => $value,
@@ -289,7 +292,7 @@ trait CachesValue
         return '<!--'.($close ? '/' : '').$marker.'-->';
     }
 
-    public function markValue($value): string
+    public function addMarkers($value): mixed
     {
         if (
             ! config('permanent-cache.components.markers.enabled') ||
@@ -298,6 +301,6 @@ trait CachesValue
             return $value;
         }
 
-        return (string) $this->getMarker().$value.$this->getMarker(close: true);
+        return $this->getMarker().$value.$this->getMarker(close: true);
     }
 }
