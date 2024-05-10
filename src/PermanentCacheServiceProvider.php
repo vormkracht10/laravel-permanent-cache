@@ -16,7 +16,8 @@ class PermanentCacheServiceProvider extends PackageServiceProvider
             ->hasCommands(
                 PermanentCachesStatusCommand::class,
                 UpdatePermanentCachesCommand::class
-            );
+            )
+            ->hasConfigFile();
     }
 
     public function registeringPackage()

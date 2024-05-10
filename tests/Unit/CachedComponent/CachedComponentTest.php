@@ -17,6 +17,8 @@ test('test cached component is cached second time', function () {
 });
 
 test('test cached component with parameters is cached correctly', function () {
+    config(['permanent-cache.components.markers.enabled' => false]);
+
     $randomString = str_random();
 
     $cachedComponentWithParameters = new CachedComponent(value: $randomString);

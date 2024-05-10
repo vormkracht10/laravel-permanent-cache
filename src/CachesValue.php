@@ -7,6 +7,7 @@ use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use Vormkracht10\PermanentCache\Events\PermanentCacheUpdated;
@@ -69,6 +70,8 @@ trait CachesValue
             ? Blade::renderComponent($this)
             : $this->run($event);
 
+        $value = $this->markValue($value);
+
         Cache::driver($driver)->forever($cacheKey, (object) [
             'value' => $value,
             'updated_at' => now(),
@@ -128,9 +131,11 @@ trait CachesValue
     {
         $instance = app()->make(static::class, $parameters);
 
-        return dispatch(
+        dispatch(
             $instance
         )->onConnection('sync');
+
+        return static::get($parameters);
     }
 
     /**
@@ -147,9 +152,10 @@ trait CachesValue
         $cache = Cache::driver($driver);
 
         if (
-            $update && ! $cache->has($cacheKey)
+            $update &&
+            ! $cache->has($cacheKey)
         ) {
-            static::update($parameters ?? []);
+            return static::updateAndGet($parameters ?? []);
         }
 
         return $cache->get($cacheKey, $default)?->value;
@@ -261,7 +267,7 @@ trait CachesValue
             $cacheKey = $store;
         }
 
-        $cacheDriver ??= config('cache.default');
+        $cacheDriver ??= config('permanent-cache.driver') ?: config('cache.default');
         $cacheKey ??= preg_replace('/[^A-Za-z0-9]+/', '_', strtolower(Str::snake($class)));
 
         if ($parameters) {
@@ -269,5 +275,27 @@ trait CachesValue
         }
 
         return [$cacheDriver, $cacheKey];
+    }
+
+    public function getMarker(array $parameters = [], $close = false): string
+    {
+        [$cacheDriver, $cacheKey] = $this::store($parameters ?? $this->getParameters());
+
+        $marker = $cacheDriver.':'.$cacheKey;
+
+        if (config('permanent-cache.components.markers.hash')) {
+            $marker = md5($marker);
+        }
+
+        return '<!--'.($close ? '/' : '').$marker.'-->';
+    }
+
+    public function markValue($value): string
+    {
+        if (config('permanent-cache.components.markers.enabled')) {
+            $value = $this->getMarker().$value.$this->getMarker(close: true);
+        }
+
+        return (string) $value;
     }
 }
