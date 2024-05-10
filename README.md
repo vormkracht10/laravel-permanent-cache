@@ -44,7 +44,8 @@ return [
             'hash' => env('PERMANENT_CACHE_MARKERS_HASH', env('APP_ENV') === 'production'),
         ],
     ],
-];```
+];
+```
 
 # Usage
 
