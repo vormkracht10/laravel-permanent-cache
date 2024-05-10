@@ -7,7 +7,6 @@ use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use Vormkracht10\PermanentCache\Events\PermanentCacheUpdated;
