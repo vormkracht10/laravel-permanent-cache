@@ -275,7 +275,7 @@ trait CachesValue
             $cacheKey = $store;
         }
 
-        $cacheStore ??= config('permanent-cache.driver') ?: config('cache.default');
+        $cacheStore ??= config('permanent-cache.store') ?: config('cache.default');
         $cacheKey ??= preg_replace('/[^A-Za-z0-9]+/', '_', strtolower(Str::snake($class)));
 
         if ($parameters) {
