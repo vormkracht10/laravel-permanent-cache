@@ -160,7 +160,7 @@ trait CachesValue
         $cache = Cache::store($store);
 
         if (
-            $update &&
+            $update ||
             ! $cache->has($cacheKey)
         ) {
             return static::updateAndGet($parameters ?? []);
