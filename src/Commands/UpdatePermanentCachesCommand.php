@@ -2,6 +2,7 @@
 
 namespace Vormkracht10\PermanentCache\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use Spatie\Emoji\Emoji;
 use SplObjectStorage;
@@ -59,12 +60,19 @@ class UpdatePermanentCachesCommand extends Command
             $cache = $caches->current();
             $parameters = $caches->getInfo();
 
-            $cache->update($parameters);
-
             $currentTask = $cache->getName();
             $emoji = ($progressBar->getProgress() % 2 ? Emoji::hourglassNotDone() : Emoji::hourglassDone());
 
             $progressBar->setMessage('Updating: '.$currentTask.' '.$emoji);
+
+            try {
+                $cache->update($parameters);
+            } catch (Exception $exception) {
+                $progressBar->setMessage('Error: '.$currentTask.' '.Emoji::warning());
+
+                sleep(2);
+            }
+
             $progressBar->advance();
         }
 
