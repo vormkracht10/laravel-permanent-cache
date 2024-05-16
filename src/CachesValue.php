@@ -4,6 +4,7 @@ namespace Vormkracht10\PermanentCache;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Console\Scheduling\CallbackEvent;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
@@ -130,6 +131,25 @@ trait CachesValue
         dispatch(
             $instance
         );
+    }
+
+    public function shouldQueue(): bool
+    {
+        return in_array(ShouldQueue::class, class_implements($this));
+    }
+
+    /**
+     * Update static cache after an event has been dispatched.
+     */
+    final public function updateAfterEvent($event = null)
+    {
+        if ($this->shouldQueue()) {
+            PermanentCacheJob::dispatch($this, $event)
+                ->delay($this->delay);
+        }
+        else {
+            $this->handle($event);
+        }
     }
 
     /**
