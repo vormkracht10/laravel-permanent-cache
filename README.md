@@ -1,7 +1,7 @@
 # Laravel Permanent Cache
 
 [![Total Downloads](https://img.shields.io/packagist/dt/vormkracht10/laravel-permanent-cache.svg?style=flat-square)](https://packagist.org/packages/vormkracht10/laravel-permanent-cache)
-[![Tests](https://github.com/vormkracht10/laravel-permanent-cache/actions/workflows/run-tests.yml/badge.svg?branch=main)](https://github.com/vormkracht10/laravel-permanent-cache/actions/workflows/run-tests.yml)
+[![Tests](https://github.com/vormkracht10/laravel-permanent-cache/actions/workflows/pest.yml/badge.svg?branch=main)](https://github.com/vormkracht10/laravel-permanent-cache/actions/workflows/run-tests.yml)
 [![PHPStan](https://github.com/vormkracht10/laravel-permanent-cache/actions/workflows/phpstan.yml/badge.svg?branch=main)](https://github.com/vormkracht10/laravel-permanent-cache/actions/workflows/phpstan.yml)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/vormkracht10/laravel-permanent-cache)
 ![Packagist PHP Version Support](https://img.shields.io/packagist/php-v/vormkracht10/laravel-permanent-cache)
