@@ -2,6 +2,7 @@
 
 namespace Vormkracht10\PermanentCache;
 
+use Cron\CronExpression;
 use Illuminate\Bus\Queueable;
 use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Support\Arr;
@@ -166,7 +167,7 @@ trait CachesValue
             return static::updateAndGet($parameters ?? []);
         }
 
-        return $cache->get($cacheKey, $default)?->value;
+        return $cache->get($cacheKey)?->value ?? $default;
     }
 
     final public function getMeta($parameters = []): mixed
@@ -195,9 +196,7 @@ trait CachesValue
 
         [$store, $cacheKey] = $this->store($this->getParameters());
 
-        return Cache::store($store)->get(
-            $cacheKey, $default,
-        )?->value;
+        return Cache::store($store)->get($cacheKey)?->value ?? $default;
     }
 
     public function getName(): string
@@ -308,5 +307,14 @@ trait CachesValue
         }
 
         return $this->getMarker().$value.$this->getMarker(close: true);
+    }
+
+    public function expression(): ?CronExpression
+    {
+        if (! isset($this->expression)) {
+            return null;
+        }
+
+        return new CronExpression($this->expression);
     }
 }
