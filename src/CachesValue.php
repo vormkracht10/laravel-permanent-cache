@@ -53,6 +53,13 @@ trait CachesValue
     private $isUpdating = false;
 
     /**
+     * The event this cache is currently updating with.
+     *
+     * @var mixed
+     */
+    private $currentEvent = null;
+
+    /**
      * Update the cached value, this method expects an event if
      * the cacher is not static.
      *
@@ -60,6 +67,11 @@ trait CachesValue
      */
     final public function handle($event = null): void
     {
+        if (isset($this->currentEvent)) {
+            $event = $this->currentEvent;
+            unset($this->currentEvent);
+        }
+
         // disable possible active caching mechanisms
         $cacheDefault = config('cache.default');
         config(['cache.default' => null]);
@@ -133,21 +145,16 @@ trait CachesValue
         );
     }
 
-    public function shouldQueue(): bool
-    {
-        return in_array(ShouldQueue::class, class_implements($this));
-    }
-
     /**
-     * Update static cache after an event has been dispatched.
+     * Update a reactive cache after an event it is listening for
+     * has been dispatched.
      */
-    final public function updateAfterEvent($event = null)
+    final public function updateAfterEvent($event)
     {
-        if ($this->shouldQueue()) {
-            PermanentCacheJob::dispatch($this, $event)
-                ->delay($this->delay);
-        }
-        else {
+        if ($this instanceof ShouldQueue) {
+            $this->currentEvent = $event;
+            dispatch($this);
+        } else {
             $this->handle($event);
         }
     }
@@ -169,7 +176,7 @@ trait CachesValue
     /**
      * Get the cached value this cacher provides.
      *
-     * @param  bool  $update  Whether the cache should update
+     * @param  bool  $update Whether the cache should update
      *                        when it doesn't hold the value yet.
      * @return V|mixed|null
      */
@@ -186,7 +193,7 @@ trait CachesValue
             return static::updateAndGet($parameters ?? []);
         }
 
-        return $cache->get($cacheKey, $default)?->value;
+        return $cache->get($cacheKey)?->value ?? $default;
     }
 
     final public function getMeta($parameters = []): mixed
@@ -215,9 +222,7 @@ trait CachesValue
 
         [$store, $cacheKey] = $this->store($this->getParameters());
 
-        return Cache::store($store)->get(
-            $cacheKey, $default,
-        )?->value;
+        return Cache::store($store)->get($cacheKey)?->value ?? $default;
     }
 
     public function getName(): string
@@ -231,7 +236,8 @@ trait CachesValue
     }
 
     /// Default implementation for the `\Scheduled::schedule` method.
-    /** @param CallbackEvent $callback */
+
+    /** @param  CallbackEvent  $callback */
     public static function schedule($callback)
     {
         if (! is_a(static::class, Scheduled::class, true)) {

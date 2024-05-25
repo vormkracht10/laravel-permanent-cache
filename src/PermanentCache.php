@@ -44,10 +44,11 @@ class PermanentCache
 
                 $cacheInstance = $this->app->make($cache, $parameters);
 
-                if ([] !== $events = $cacheInstance->getListenerEvents()) {
-                    foreach($events as $event) {
-                        Event::listen($event, fn ($e) => $cacheInstance->updateAfterEvent(event: $e));
-                    }
+                foreach ($cacheInstance->getListenerEvents() as $event) {
+                    Event::listen($event, function ($e) use ($cacheInstance) {
+                        $cache = clone $cacheInstance;
+                        $cache->updateAfterEvent($e);
+                    });
                 }
 
                 $this->caches[$cacheInstance] = $parameters;
