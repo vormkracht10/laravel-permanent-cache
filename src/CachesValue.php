@@ -5,6 +5,7 @@ namespace Vormkracht10\PermanentCache;
 use Cron\CronExpression;
 use Illuminate\Bus\Queueable;
 use Illuminate\Console\Scheduling\CallbackEvent;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
@@ -53,6 +54,13 @@ trait CachesValue
     private $isUpdating = false;
 
     /**
+     * The event this cache is currently updating with.
+     *
+     * @var mixed
+     */
+    private $currentEvent = null;
+
+    /**
      * Update the cached value, this method expects an event if
      * the cacher is not static.
      *
@@ -60,6 +68,11 @@ trait CachesValue
      */
     final public function handle($event = null): void
     {
+        if (isset($this->currentEvent)) {
+            $event = $this->currentEvent;
+            unset($this->currentEvent);
+        }
+
         // disable possible active caching mechanisms
         $cacheDefault = config('cache.default');
         config(['cache.default' => null]);
@@ -134,6 +147,20 @@ trait CachesValue
     }
 
     /**
+     * Update a reactive cache after an event it is listening for
+     * has been dispatched.
+     */
+    final public function updateAfterEvent($event)
+    {
+        if ($this instanceof ShouldQueue) {
+            $this->currentEvent = $event;
+            dispatch($this);
+        } else {
+            $this->handle($event);
+        }
+    }
+
+    /**
      * Manually force a static cache to update.
      */
     final public static function updateAndGet($parameters = [])
@@ -150,7 +177,7 @@ trait CachesValue
     /**
      * Get the cached value this cacher provides.
      *
-     * @param  bool  $update  Whether the cache should update
+     * @param  bool  $update Whether the cache should update
      *                        when it doesn't hold the value yet.
      * @return V|mixed|null
      */
@@ -210,7 +237,8 @@ trait CachesValue
     }
 
     /// Default implementation for the `\Scheduled::schedule` method.
-    /** @param CallbackEvent $callback */
+
+    /** @param  CallbackEvent  $callback */
     public static function schedule($callback)
     {
         if (! is_a(static::class, Scheduled::class, true)) {
