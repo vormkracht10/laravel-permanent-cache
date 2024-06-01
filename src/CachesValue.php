@@ -128,9 +128,7 @@ trait CachesValue
     {
         $instance = app()->make(static::class, $parameters);
 
-        dispatch(
-            $instance
-        );
+        dispatch($instance);
     }
 
     /**
@@ -140,9 +138,7 @@ trait CachesValue
     {
         $instance = app()->make(static::class, $parameters);
 
-        dispatch(
-            $instance
-        )->onConnection('sync');
+        dispatch($instance)->onConnection('sync');
 
         return static::get($parameters);
     }

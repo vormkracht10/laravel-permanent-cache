@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use Spatie\Emoji\Emoji;
 use SplObjectStorage;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Vormkracht10\PermanentCache\CachesValue;
 use Vormkracht10\PermanentCache\Facades\PermanentCache;
 
 class UpdatePermanentCachesCommand extends Command
@@ -16,7 +17,7 @@ class UpdatePermanentCachesCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'permanent-cache:update {--filter=}';
+    protected $signature = 'permanent-cache:update {--filter=} {--connection=} {--queue=}';
 
     /**
      * The console command description.
@@ -57,17 +58,23 @@ class UpdatePermanentCachesCommand extends Command
         $progressBar->start();
 
         foreach ($caches as $c) {
+            /** @var CachesValue $cache */
             $cache = $caches->current();
-            $parameters = $caches->getInfo();
 
             $currentTask = $cache->getName();
             $emoji = ($progressBar->getProgress() % 2 ? Emoji::hourglassNotDone() : Emoji::hourglassDone());
 
             $progressBar->setMessage('Updating: '.$currentTask.' '.$emoji);
 
+            $connection = $this->option('connection') ?? 'sync';
+
+            $queue = $connection === 'sync' ? null : $this->option('queue');
+
             try {
-                $cache->update($parameters);
-            } catch (Exception $exception) {
+                dispatch($cache)
+                    ->onConnection($connection)
+                    ->onQueue($queue);
+            } catch (Exception) {
                 $progressBar->setMessage('Error: '.$currentTask.' '.Emoji::warning());
 
                 sleep(2);
