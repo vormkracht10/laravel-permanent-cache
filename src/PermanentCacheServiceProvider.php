@@ -27,9 +27,13 @@ class PermanentCacheServiceProvider extends PackageServiceProvider
 
     public function bootingPackage()
     {
-        $this->callAfterResolving(Schedule::class, fn (Schedule $schedule) => collect(Facades\PermanentCache::configuredCaches())
-            ->filter(fn ($cacher) => is_a($cacher, Scheduled::class))
-            ->each(fn ($cacher) => $cacher->schedule($schedule->job($cacher)))
+        $this->loadRoutesFrom(__DIR__ . '/Routes/web.php');
+
+        $this->callAfterResolving(
+            Schedule::class,
+            fn (Schedule $schedule) => collect(Facades\PermanentCache::configuredCaches())
+                ->filter(fn ($cacher) => is_a($cacher, Scheduled::class))
+                ->each(fn ($cacher) => $cacher->schedule($schedule->job($cacher)))
         );
     }
 }
