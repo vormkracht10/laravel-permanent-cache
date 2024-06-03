@@ -311,8 +311,10 @@ trait CachesValue
         return $this->getMarker() . $value . $this->getMarker(close: true);
     }
 
+
     public function getRefreshRoute()
     {
-        return route('permanent-cache.update', ['parameter' => 'test']);
+        $class = (new ReflectionClass($this))->name;;
+        return route('permanent-cache.update', encrypt([$class]));
     }
 }
