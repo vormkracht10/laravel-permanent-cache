@@ -313,5 +313,6 @@ trait CachesValue
 
     public function getRefreshRoute()
     {
+        return route('permanent-cache.update', ['parameter' => 'test']);
     }
 }
