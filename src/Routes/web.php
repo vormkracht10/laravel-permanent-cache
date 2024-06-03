@@ -9,5 +9,7 @@ Route::get('/permanent-cache/update/', function () {
     $class = new \ReflectionClass($class);
     $staticClass = $class->getName();
 
-    return response($staticClass::updateAndGet(), 200, []);
+    $staticClass::update();
+
+    return \Illuminate\Support\Facades\Blade::renderComponent(app()->make($class, $props));
 })->name('permanent-cache.update');

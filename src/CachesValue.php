@@ -314,7 +314,13 @@ trait CachesValue
 
     public function getRefreshRoute()
     {
-        $class = (new ReflectionClass($this))->name;;
-        return route('permanent-cache.update', encrypt([$class]));
+        $class = get_class($this);
+        $props =
+            collect((new ReflectionClass($this))->getProperties(\ReflectionProperty::IS_PUBLIC))
+            ->where('class', __CLASS__)
+            ->mapWithKeys(fn ($prop) => [$prop->name => $this->{$prop->name}])
+            ->toArray();
+
+        return route('permanent-cache.update', ['data' => encrypt([$class, $props])]);
     }
 }
