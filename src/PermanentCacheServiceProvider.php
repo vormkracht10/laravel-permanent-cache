@@ -17,6 +17,7 @@ class PermanentCacheServiceProvider extends PackageServiceProvider
                 PermanentCachesStatusCommand::class,
                 UpdatePermanentCachesCommand::class
             )
+            ->hasRoute('api')
             ->hasConfigFile();
     }
 
@@ -27,8 +28,6 @@ class PermanentCacheServiceProvider extends PackageServiceProvider
 
     public function bootingPackage()
     {
-        $this->loadRoutesFrom(__DIR__ . '/Routes/web.php');
-
         $this->callAfterResolving(
             Schedule::class,
             fn (Schedule $schedule) => collect(Facades\PermanentCache::configuredCaches())
