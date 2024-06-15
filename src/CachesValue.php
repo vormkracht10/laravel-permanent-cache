@@ -127,9 +127,7 @@ trait CachesValue
     {
         $instance = app()->make(static::class, $parameters);
 
-        dispatch(
-            $instance
-        );
+        dispatch($instance);
     }
 
     /**
@@ -139,9 +137,7 @@ trait CachesValue
     {
         $instance = app()->make(static::class, $parameters);
 
-        dispatch(
-            $instance
-        )->onConnection('sync');
+        dispatch($instance)->onConnection('sync');
 
         return static::get($parameters);
     }
@@ -161,7 +157,7 @@ trait CachesValue
 
         if (
             $update ||
-            !$cache->has($cacheKey)
+            ! $cache->has($cacheKey)
         ) {
             return static::updateAndGet($parameters ?? []);
         }
@@ -189,7 +185,7 @@ trait CachesValue
      */
     final protected function value($default = null): mixed
     {
-        if (is_subclass_of(static::class, CachedComponent::class) && !is_null($default)) {
+        if (is_subclass_of(static::class, CachedComponent::class) && ! is_null($default)) {
             throw new \Exception("A cached component can't have a default return value");
         }
 
@@ -212,11 +208,12 @@ trait CachesValue
     }
 
     /// Default implementation for the `\Scheduled::schedule` method.
-    /** @param CallbackEvent $callback */
+
+    /** @param  CallbackEvent  $callback */
     public static function schedule($callback)
     {
-        if (!is_a(static::class, Scheduled::class, true)) {
-            throw new \Exception("Can't schedule a cacher that does not implement the [" . Scheduled::class . '] interface');
+        if (! is_a(static::class, Scheduled::class, true)) {
+            throw new \Exception("Can't schedule a cacher that does not implement the [".Scheduled::class.'] interface');
         }
 
         $reflection = new ReflectionClass(static::class);
@@ -224,7 +221,7 @@ trait CachesValue
         $concrete = $reflection->getProperty('expression')->getDefaultValue();
 
         if (is_null($concrete)) {
-            throw new \Exception('Either the Cached::$expression property or the [' . __METHOD__ . '] method must be overridden by the user.');
+            throw new \Exception('Either the Cached::$expression property or the ['.__METHOD__.'] method must be overridden by the user.');
         }
 
         $callback->cron($concrete);
@@ -267,7 +264,7 @@ trait CachesValue
             ->getDefaultValue();
 
         if (
-            !is_null($store) &&
+            ! is_null($store) &&
             strpos($store, ':')
         ) {
             $cacheStore = substr($store, 0, strpos($store, ':'));
@@ -280,7 +277,7 @@ trait CachesValue
         $cacheKey ??= preg_replace('/[^A-Za-z0-9]+/', '_', strtolower(Str::snake($class)));
 
         if ($parameters) {
-            $cacheKey .= ':' . http_build_query($parameters);
+            $cacheKey .= ':'.http_build_query($parameters);
         }
 
         return [$cacheStore, $cacheKey];
@@ -290,36 +287,35 @@ trait CachesValue
     {
         [$cacheStore, $cacheKey] = $this::store($parameters ?? $this->getParameters());
 
-        $marker = $cacheStore . ':' . $cacheKey;
+        $marker = $cacheStore.':'.$cacheKey;
 
         if (config('permanent-cache.components.markers.hash')) {
             $marker = md5($marker);
         }
 
-        return '<!--' . ($close ? '/' : '') . $marker . '-->';
+        return '<!--'.($close ? '/' : '').$marker.'-->';
     }
 
     public function addMarkers($value): mixed
     {
         if (
-            !config('permanent-cache.components.markers.enabled') ||
-            !is_subclass_of($this, CachedComponent::class)
+            ! config('permanent-cache.components.markers.enabled') ||
+            ! is_subclass_of($this, CachedComponent::class)
         ) {
             return $value;
         }
 
-        return $this->getMarker() . $value . $this->getMarker(close: true);
+        return $this->getMarker().$value.$this->getMarker(close: true);
     }
-
 
     public function getRefreshRoute()
     {
         $class = get_class($this);
         $props =
             collect((new ReflectionClass($this))->getProperties(\ReflectionProperty::IS_PUBLIC))
-            ->where('class', __CLASS__)
-            ->mapWithKeys(fn ($prop) => [$prop->name => $this->{$prop->name}])
-            ->toArray();
+                ->where('class', __CLASS__)
+                ->mapWithKeys(fn ($prop) => [$prop->name => $this->{$prop->name}])
+                ->toArray();
 
         return route('permanent-cache.update', ['data' => encrypt([$class, $props])]);
     }

@@ -15,9 +15,9 @@ class PermanentCacheServiceProvider extends PackageServiceProvider
         $package->name('laravel-permanent-cache')
             ->hasCommands(
                 PermanentCachesStatusCommand::class,
-                UpdatePermanentCachesCommand::class
+                UpdatePermanentCachesCommand::class,
             )
-            ->hasRoute('api')
+            ->hasRoute('permanent-cache')
             ->hasConfigFile();
     }
 
@@ -28,11 +28,10 @@ class PermanentCacheServiceProvider extends PackageServiceProvider
 
     public function bootingPackage()
     {
-        $this->callAfterResolving(
-            Schedule::class,
+        $this->callAfterResolving(Schedule::class,
             fn (Schedule $schedule) => collect(Facades\PermanentCache::configuredCaches())
                 ->filter(fn ($cacher) => is_a($cacher, Scheduled::class))
-                ->each(fn ($cacher) => $cacher->schedule($schedule->job($cacher)))
+                ->each(fn ($cacher) => $cacher->schedule($schedule->job($cacher))),
         );
     }
 }
