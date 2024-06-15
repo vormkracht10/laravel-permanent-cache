@@ -6,7 +6,7 @@ use Vormkracht10\PermanentCache\CachesValue;
 
 Route::get('/permanent-cache/{class}/update', function (Request $request, string $class) {
     /** @var class-string<CachesValue> $class */
-    $class = decrypt($class);
+    $class = decrypt($class, false);
 
     $parameters = ($parameters = $request->query('parameters'))
         ? Arr::wrap(decrypt($parameters))
